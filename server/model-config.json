@@ -114,5 +114,9 @@
   "FacebookWebHook": {
     "dataSource": null,
     "public": true
+  },
+  "FacebookConfig": {
+    "dataSource": "db",
+    "public": true
   }
 }
