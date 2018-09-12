@@ -1,0 +1,33 @@
+{
+  "name": "IntentChangeRequest",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "clientAccessKey": {
+      "type": "string"
+    },
+    "chatSessionId": {
+      "type": "string"
+    },
+    "intent": {
+      "type": "object"
+    },
+    "shouldTriggerSuggestion": {
+      "type": "string"
+    },
+    "requestedFrom": {
+      "type": "string"
+    },
+    "handled": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

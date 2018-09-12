@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "db"
+  },
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "webhook": {
+    "dataSource": null,
+    "public": true
+  },
+  "ChatSessionWrapper": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ChatMessage": {
+    "dataSource": "transient",
+    "public": false
+  },
+  "ChatData": {
+    "dataSource": "transient",
+    "public": false
+  },
+  "ContinueRequest": {
+    "dataSource": "transient",
+    "public": false
+  },
+  "AsyncBotMessage": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "AsyncInteractBotMessage": {
+    "dataSource": "transient",
+    "public": false
+  },
+  "Maintainance": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "IntentHelper": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "IntentChangeRequest": {
+    "dataSource": "db",
+    "public": true
+  },
+  "IntentKeyMapping": {
+    "dataSource": "db",
+    "public": true
+  },
+  "StartLinkRequest": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "BotHistory": {
+    "dataSource": "db",
+    "public": true
+  },
+  "BotHelper": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "BotCommand": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "AutomationHelper": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "AutomationCommand": {
+    "dataSource": "transient",
+    "public": true
+  },
+  "ContactUsHelper": {
+    "dataSource": null,
+    "public": true
+  },
+  "ContactUsCommand": {
+    "dataSource": "transient",
+    "public": true
+  }
+}

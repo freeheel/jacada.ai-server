@@ -1,0 +1,300 @@
+
+  /**
+   *
+   * Uses product alpha and local chat session db management.
+   *
+   * @param apikey
+   * @param sessionId
+   * @param query
+   * @param cb
+   */
+  Webhook.callApiAi2 = function(apikey, sessionId, query, cb) {
+    log.debug('callApiAi2 for apikey %s, sessionId %s and query %s', apikey, sessionId, query);
+
+    let ChatSessionWrapper = require('../../server/server').models.ChatSessionWrapper;
+
+    var sessionData = {
+      sessionId: sessionId,
+    };
+
+    ChatSessionWrapper.findOrCreate({
+        where: sessionData,
+        apiKey: apikey,
+      }, sessionData,
+      function(err, chatSessionWrapperInstance, created) {
+        if (err) {
+          log.warn('Error creating ChatSessionWrapper for sessionId %s ', sessionId);
+        }
+
+        let isUnknown = false;
+
+        async.parallel([
+          function addMessage(callback) {
+            chatSessionWrapperInstance.chatMassages.create({
+              from: 'you',
+              query: query,
+              date: new Date(),
+            }, function(err, instance) {
+              callback(err, instance);
+            });
+          },
+          function callApiAi(callback) {
+            const app = apiai(apikey);
+            let request = app.textRequest(query, {
+              sessionId: sessionId,
+            });
+
+            request.on('response', function(response) {
+              isUnknown = response.result.action === 'input.unknown' ? true : false;
+
+              let hasJacada = false;
+              if (response.result.fulfillment.data && response.result.fulfillment.data.page) {
+                hasJacada = true;
+              }
+
+              log.debug('Got response from api.ai with fullfillment? ', hasJacada);
+
+              if (hasJacada) {
+                response.result.fulfillment.data.page.isUnknown = isUnknown;
+
+                // transform data from interact
+                apiResponseHandler.createResponse2(response).then((resp) => {
+                  callback(null, resp);
+                });
+              } else {
+                log.debug('Transforming api.ai default response to our expected response');
+
+                let resp = [];
+
+                _.each(response.result.fulfillment.messages, (message) => {
+                  switch (message.type) {
+                    case 0:
+                      resp.push({
+                        type: 'Paragraph',
+                        elements: [
+                          {
+                            type: 'Text',
+                            text: message.speech,
+                          },
+                        ],
+                      });
+                      break;
+                    default:
+                      log.warn('Unable to transform message type %s for request %s. Going to skip message from api.ai', message.type, query);
+                      break;
+                  }
+                });
+
+                resp.isUnknown = isUnknown;
+                callback(null, resp);
+              }
+            });
+
+            request.on('error', function(error) {
+              log.error('Error on apiai request for apikey %s, sessionId %s and query %s', apikey, sessionId, query, stringify(error));
+              // cb(error);
+              callback(error);
+            });
+
+            request.end();
+          },
+        ], function(err, results) {
+          if (err) {
+            log.error('Error during parallel execution', err);
+            cb(err);
+          } else {
+            let queryInstance = results[0];
+            const apiResp = results[1];
+
+            queryInstance.response = apiResp;
+            queryInstance.isUnknown = isUnknown;
+
+            if (chatSessionWrapperInstance.unknownCount) {
+              if (apiResp.isUnknown) {
+                chatSessionWrapperInstance.unknownCount++;
+                log.info('Increasing unknown count for session %s to %s', sessionId, queryInstance.unknownCount);
+              } else {
+                log.info('Resetting unknown count for session %s to 0', sessionId);
+                chatSessionWrapperInstance.unknownCount = 0;
+              }
+            } else {
+              if (apiResp.isUnknown) {
+                chatSessionWrapperInstance.unknownCount = 1;
+                log.info('Increasing unknown count for session %s to %s', sessionId, queryInstance.unknownCount);
+              }
+            }
+            /*
+            queryInstance.save((err, saved) => {
+              if (err) {
+                log.error('Error adding response to ChatMessage');
+              } else {
+                log.debug('Message response added.');
+              }
+            });
+*/
+            chatSessionWrapperInstance.save((err, saved) => {
+              if (err) {
+                log.error('Error adding response to ChatMessage');
+              } else {
+                log.debug('Message response added.');
+              }
+            });
+
+            cb(null, apiResp);
+          }
+        });
+      });
+  };
+
+  Webhook.remoteMethod('callApiAi2', {
+    accepts: [
+      {arg: 'apikey', type: 'string'},
+      {arg: 'sessionId', type: 'string'},
+      {arg: 'query', type: 'string'},
+    ],
+    returns: {
+      arg: 'result', type: 'object', http: {source: 'body'}, root: true,
+    },
+    http: {path: '/apiai2', verb: 'get'},
+  });
+
+  /**
+   * Uses product alpha and RDS to store data.
+   * @param apikey
+   * @param sessionId
+   * @param query
+   * @param cb
+   */
+  Webhook.callApiAi3 = function(apikey, sessionId, query, cb) {
+    log.debug('callApiAi3 for apikey %s, sessionId %s and query %s', apikey, sessionId, query);
+
+    let helper = new RdsServiceHelper('b9c0086d-ff47-3a6f-5de9-10f8c99074ff', 'chdemos', 'chatbot');
+
+    helper.findOrCreateTransaction(sessionId).then((transaction, createdNewInstance) => {
+      log.debug('Found or created transaction %s for sessionId %s', createdNewInstance, sessionId, transaction);
+
+      let isUnknown = false;
+
+      const app = apiai(apikey);
+      let request = app.textRequest(query, {
+        sessionId: sessionId,
+      });
+
+      async.parallel([
+
+        function callApiAi(callback) {
+          const app = apiai(apikey);
+          let request = app.textRequest(query, {
+            sessionId: sessionId,
+          });
+
+          request.on('response', function(response) {
+            isUnknown = response.result.action === 'input.unknown' ? true : false;
+
+            let hasJacada = false;
+            if (response.result.fulfillment.data && response.result.fulfillment.data.page) {
+              hasJacada = true;
+            }
+
+            log.debug('Got response from api.ai with fullfillment? ', hasJacada);
+
+            if (hasJacada) {
+              response.result.fulfillment.data.page.isUnknown = isUnknown;
+
+              // transform data from interact
+              apiResponseHandler.createResponse2(response).then((resp) => {
+                callback(null, resp);
+              });
+            } else {
+              log.debug('Transforming api.ai default response to our expected response');
+
+              let resp = [];
+
+              _.each(response.result.fulfillment.messages, (message) => {
+                switch (message.type) {
+                  case 0:
+                    resp.push({
+                      type: 'Paragraph',
+                      elements: [
+                        {
+                          type: 'Text',
+                          text: message.speech,
+                        },
+                      ],
+                    });
+                    break;
+                  default:
+                    log.warn('Unable to transform message type %s for request %s. Going to skip message from api.ai', message.type, query);
+                    break;
+                }
+              });
+
+              resp.isUnknown = isUnknown;
+              callback(null, resp);
+            }
+          });
+
+          request.on('error', function(error) {
+            log.error('Error on apiai request for apikey %s, sessionId %s and query %s', apikey, sessionId, query, error);
+            // cb(error);
+            callback(error);
+          });
+
+          request.end();
+        },
+      ], function(err, results) {
+        if (err) {
+          log.error('Error during parallel execution', err);
+          cb(err);
+        } else {
+          const apiResp = results[0];
+
+          // manage counter
+
+          if (apiResp.isUnknown) {
+            if (transaction.additionalData['unknownCounter']) {
+              transaction.additionalData['unknownCounter'] = transaction.additionalData['unknownCounter'] + 1;
+            } else {
+              transaction.additionalData['unknownCounter'] = 1;
+            }
+            log.info('Increasing unknown count for session %s to %s', sessionId, transaction.additionalData['unknownCounter']);
+          } else {
+            if (transaction.additionalData['unknownCounter']) {
+              transaction.additionalData['unknownCounter'] = 0;
+              log.info('Resetting unknown count for session %s to 0', sessionId);
+            }
+          }
+
+          let queryKey = 'query_' + Date.now();
+          let queryAndResponse = {
+            query: query,
+            aiResponse: apiResp,
+          };
+          transaction.additionalData[queryKey] = JSON.stringify(queryAndResponse);
+
+          helper.addOrUpdateAdditionalData(transaction).then((transaction) => {
+            log.debug('Updated transaction data', transaction);
+          }).catch((err) => {
+            log.error('Unable to add additional data. Won´t be able to recover on a different channel');
+          });
+
+          cb(null, apiResp);
+        }
+      });
+    }).catch((err) => {
+      log.error('Error getting RDS transaction', err);
+      return cb(err);
+    });
+  };
+
+  Webhook.remoteMethod('callApiAi3', {
+    accepts: [
+      {arg: 'apikey', type: 'string'},
+      {arg: 'sessionId', type: 'string'},
+      {arg: 'query', type: 'string'},
+    ],
+    returns: {
+      arg: 'result', type: 'object', http: {source: 'body'}, root: true,
+    },
+    http: {path: '/apiai3', verb: 'get'},
+  });

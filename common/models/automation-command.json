@@ -1,0 +1,28 @@
+{
+  "name": "AutomationCommand",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "spui": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "serviceArguments": {
+      "type": [
+        "object"
+      ]
+    },
+    "transactionId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,26 @@
+{
+  "name": "ContactUsCommand",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "spui": {
+      "type": "string"
+    },
+    "chatBotSessionId": {
+      "type": "string"
+    },
+    "interactionSessionId": {
+      "type": "string"
+    },
+    "scriptUrl": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

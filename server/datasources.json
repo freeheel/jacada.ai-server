@@ -1,0 +1,13 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": 27017,
+    "database": "ai_server",
+    "name": "db",
+    "connector": "mongodb"
+  },
+  "transient": {
+    "name": "transient",
+    "connector": "transient"
+  }
+}

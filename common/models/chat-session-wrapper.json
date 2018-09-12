@@ -1,0 +1,50 @@
+{
+  "name": "ChatSessionWrapper",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "required": true
+    },
+    "apiKey": {
+      "type": "string",
+      "required": false
+    },
+    "interactions": {
+      "type": "object"
+    },
+    "interactionStack": {
+      "type": "object"
+    },
+    "asyncTasks": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "chatMassages": {
+      "type": "embedsMany",
+      "model": "ChatMessage",
+      "property": "chatMessageList",
+      "options": {
+        "validate": true,
+        "forceId": false
+      }
+    },
+    "chatData": {
+      "type": "embedsMany",
+      "model": "ChatData",
+      "property": "chatDataList",
+      "options": {
+        "validate": true,
+        "forceId": false
+      }
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

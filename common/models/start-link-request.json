@@ -1,0 +1,23 @@
+{
+  "name": "StartLinkRequest",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "chatBotInternalSessionId": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string"
+    },
+    "options": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

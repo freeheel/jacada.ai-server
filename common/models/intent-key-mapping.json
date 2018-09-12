@@ -1,0 +1,23 @@
+{
+  "name": "IntentKeyMapping",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "clientAccessKey": {
+      "type": "string"
+    },
+    "developerAccessKey": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,28 @@
+{
+  "name": "ContinueRequest",
+  "base": "Model",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "required": true
+    },
+    "forDialog": {
+      "type": "string",
+      "required": true
+    },
+    "payload": {
+      "type": "object"
+    },
+    "userValue": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

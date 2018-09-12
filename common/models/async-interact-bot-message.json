@@ -1,0 +1,38 @@
+{
+  "name": "AsyncInteractBotMessage",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "tenant": {
+      "type": "string",
+      "required": true
+    },
+    "appKey": {
+      "type": "string",
+      "required": true
+    },
+    "interactionId": {
+      "type": "string",
+      "required": true
+    },
+    "internalChatbotSessionId": {
+      "type": "string",
+      "required": true
+    },
+    "initiator": {
+      "type": "string",
+      "required": true
+    },
+    "continueOrSignal": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

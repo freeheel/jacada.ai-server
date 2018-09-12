@@ -1,0 +1,29 @@
+{
+  "name": "ChatMessage",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "from": {
+      "type": "string"
+    },
+    "query": {
+      "type": "string"
+    },
+    "response": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "chatSessionWrapper": {
+      "type": "belongsTo",
+      "model": "ChatSessionWrapper",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
