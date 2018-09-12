@@ -8,6 +8,7 @@ var app = module.exports = loopback();
 
 const log = require('../common/util/logging').log('server', 'debug');
 
+
 app.use((req, res, next) => {
   res.header('X-Frame-Options', ['ALLOWALL']);
   next();

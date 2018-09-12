@@ -110,5 +110,9 @@
   "ContactUsCommand": {
     "dataSource": "transient",
     "public": true
+  },
+  "FacebookWebHook": {
+    "dataSource": null,
+    "public": true
   }
 }
