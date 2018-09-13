@@ -34,10 +34,8 @@ module.exports = function (FacebookWebHook) {
     const FacebookConfig = require('../../server/server').models.FacebookConfig;
 
     FacebookConfig.findOne({
-      filter: {
-        where: {
-          verifyToken: verifyToken
-        }
+      where: {
+        verifyToken: verifyToken
       }
     }, (err, instance) => {
       if (err || !instance) {
@@ -71,8 +69,6 @@ module.exports = function (FacebookWebHook) {
   });
 
 
-
-
   // InteractServiceMap
 
   let InteractServiceMap = {};
@@ -92,7 +88,7 @@ module.exports = function (FacebookWebHook) {
     let message = messages[0];
 
 
-    if(!message) {
+    if (!message) {
       return;
     }
 
@@ -100,13 +96,11 @@ module.exports = function (FacebookWebHook) {
     const FacebookConfig = require('../../server/server').models.FacebookConfig;
 
     FacebookConfig.findOne({
-      filter: {
-        where: {
-          recipientId: message.receiverId
-        }
+      where: {
+        recipientId: message.receiverId
       }
     }, (err, config) => {
-      if(err || !config) {
+      if (err || !config) {
         return log.error('We don´t have a configuration for the receiverId %s', message.receiverId);
       }
 
