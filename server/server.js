@@ -5,6 +5,8 @@ var boot = require('loopback-boot');
 var path = require('path');
 var fs = require('fs');
 var app = module.exports = loopback();
+var loopbackSSL = require('loopback-ssl');
+
 
 const log = require('../common/util/logging').log('server', 'debug');
 
@@ -16,8 +18,10 @@ app.use((req, res, next) => {
 
 app.start = function() {
   // start the web server
+
   return app.listen(function() {
     app.emit('started');
+
     var baseUrl = app.get('url').replace(/\/$/, '');
     if(log.debug) {
       log.debug('Web server listening at: %s', baseUrl);
@@ -33,19 +37,22 @@ app.start = function() {
       app.use('/interact_ai/botBeta', loopback.static(path.resolve(__dirname, '../client/chatbotBetaClient/dist')));
       app.use('/interact_ai/chatBotUI', loopback.static(path.resolve(__dirname, '../client/chatBotWatson')));
 
+      app.use('/.well-known/acme-challenge/f4jtFNDCpzjgCf3fGvM20wbsxI1vgXbVY_WWtC9XCSA',loopback.static(path.resolve(__dirname, '../client/certificateVerification')));
+
     }
   });
 };
 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
+
+
 boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
   if (require.main === module) {
     app.io = require('socket.io')(app.start());
-
 
     app.io.on('connection', function(socket){
       console.log('a user connected');
@@ -59,3 +66,13 @@ boot(app, __dirname, function(err) {
     //app.start();
 
 });
+
+/*
+boot(app, __dirname, function(err) {
+  if (err) throw err;
+});
+
+
+return loopbackSSL.startServer(app);
+
+*/

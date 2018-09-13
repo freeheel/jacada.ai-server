@@ -18,5 +18,14 @@
       "limit": "50mb"
     },
     "cors": false
+  },
+  "httpMode": false,
+  "certConfig": {
+    "path": "/etc/letsencrypt/live/jcatest.duckdns.org/",
+    "key": "privkey.pem",
+    "cert": "fullchain.pem",
+    "ca": [],
+    "requestCert": false,
+    "rejectUnauthorized": false
   }
 }

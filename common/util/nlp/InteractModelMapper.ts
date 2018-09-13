@@ -1,6 +1,6 @@
 import TextModel from "./model/TextModel";
 
-export default class FacebookTranslator {
+export default class InteractModelMapper {
 
     constructor() {
     }

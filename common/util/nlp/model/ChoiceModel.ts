@@ -1,7 +1,7 @@
 /**
  * Class to transform the response from interact to UI model.
  */
-import BaseModel from "../model/BaseModel";
+import BaseModel from "./BaseModel";
 
 
 export default class ChoiceModel extends BaseModel {
