@@ -1,6 +1,6 @@
 import {FacebookMessage} from "./FacebookMessageParser";
 import LOG = require('../../../util/logging');
-import { parse } from 'node-html-parser';
+import {parse} from 'node-html-parser';
 
 import TextModel from "../../nlp/model/TextModel";
 
@@ -29,6 +29,7 @@ export default class FacebookResponder {
 
 
     if (responseMessage.interact && responseMessage.interact.length > 0) {
+
       responseMessage.interact.map((item) => {
 
         switch (item.type) {
@@ -52,6 +53,17 @@ export default class FacebookResponder {
       });
     } else if (responseMessage.nlp && responseMessage.nlp.length > 0) {
 
+      responseMessage.nlp.map((item) => {
+        if (!payload.message) {
+          payload.message = {
+            text: ''
+          };
+        }
+
+        // append the messages
+        payload.message.text += item.text + '\n';
+      });
+
     } else {
       // no response at all?
       log.warn('got not response at all!');
@@ -60,7 +72,6 @@ export default class FacebookResponder {
       };
     }
 
-
     // send message:
     const url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + apiToken;
     axios.post(url, payload).then((resp) => {
@@ -68,7 +79,7 @@ export default class FacebookResponder {
         log.info('Answer send to facebook chat');
       }
     }).catch(err => {
-      log.error('Error during answering to facebook chat request. %s, with payload %s', err.message, JSON.stringify(payload));
+      log.error('Error during answering to facebook chat request. %s, with payload %s', err.response.data.error.message, JSON.stringify(payload));
     })
 
   }

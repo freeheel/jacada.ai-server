@@ -39,6 +39,9 @@ export default class FacebookMessageParser {
 
       if (item.messaging) {
         item.messaging.forEach((messageObject) => {
+          if (!messageObject.message) {
+            return;
+          }
           let textMessage = new FacebookTextMessage(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.text)
           res.push(textMessage);
         });
