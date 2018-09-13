@@ -41,12 +41,12 @@ module.exports = function (FacebookWebHook) {
       }
     }, (err, instance) => {
       if (err || !instance) {
-        return cb(new Error('Unknown verification token'));
-      } else {
-
         if (log.error) {
           log.error('Received unknown verification token %s', verifyToken);
         }
+
+        return cb(new Error('Unknown verification token'));
+      } else {
 
         return cb(null, challenge);
       }
