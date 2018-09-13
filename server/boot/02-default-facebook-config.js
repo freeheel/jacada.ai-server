@@ -7,7 +7,9 @@ module.exports = function (app) {
   let FacebookConfig = app.models.FacebookConfig;
 
   FacebookConfig.findOrCreate({
-    description: 'DCM-Power'
+    where: {
+      description: 'DCM-Power'
+    }
   }, {
     description: 'DCM-Power',
     verificationToken: 'tomtom',
