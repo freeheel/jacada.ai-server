@@ -1,5 +1,6 @@
 import TextModel from "./model/TextModel";
 import TextInputModel from "./model/TextInputModel";
+import ChoiceModel from "./model/ChoiceModel";
 
 export default class InteractModelMapper {
 
@@ -20,7 +21,9 @@ export default class InteractModelMapper {
 
     sections.map((section: any) => {
 
-      if (section.sectionChoices && section.sectionChoices[0].id) {
+      if (section.elementType === 'QUESTION_CHOICES_ELEMENT') {
+        transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
+      } else if (section.sectionChoices && section.sectionChoices[0].id) {
         if (section.sectionChoices.length === 1) {
 
           // TODO Ryan - add support for input and other rich outputs.
@@ -63,7 +66,7 @@ export default class InteractModelMapper {
 
     let botResponse = response.nlpEngineResponse;
 
-    if(!botResponse) {
+    if (!botResponse) {
       return transformedResponses;
     }
 
