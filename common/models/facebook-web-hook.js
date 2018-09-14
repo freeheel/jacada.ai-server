@@ -9,24 +9,21 @@ let parser = new Parser();
 const InteractModelMapper = require('../util/nlp/InteractModelMapper').default;
 let mapper = new InteractModelMapper();
 
-
 const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
 let responder = new FacebookResponder();
 
-module.exports = function (FacebookWebHook) {
-
-  FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
+module.exports = function(FacebookWebHook) {
+  FacebookWebHook.afterRemote('verify', function(context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.afterRemote('receiveMessage', function (context, remoteMethodOutput, next) {
+  FacebookWebHook.afterRemote('receiveMessage', function(context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.verify = function (mode, challenge, verifyToken, cb) {
-
+  FacebookWebHook.verify = function(mode, challenge, verifyToken, cb) {
     if (log.debug) {
       log.debug('go verification message from facebook server with mode: %s, challange: %s and verificationToken: %s', mode, challenge, verifyToken);
     }
@@ -35,8 +32,8 @@ module.exports = function (FacebookWebHook) {
 
     FacebookConfig.findOne({
       where: {
-        verifyToken: verifyToken
-      }
+        verifyToken: verifyToken,
+      },
     }, (err, instance) => {
       if (err || !instance) {
         if (log.error) {
@@ -45,12 +42,9 @@ module.exports = function (FacebookWebHook) {
 
         return cb(new Error('Unknown verification token'));
       } else {
-
         return cb(null, challenge);
       }
     });
-
-
   };
 
   FacebookWebHook.remoteMethod('verify', {
@@ -62,23 +56,19 @@ module.exports = function (FacebookWebHook) {
     ],
     http: {
       path: '/webhook',
-      verb: 'get'
+      verb: 'get',
     },
     returns: {type: 'string', root: true},
 
   });
 
-
   // InteractServiceMap
 
   let InteractServiceMap = {};
 
-  FacebookWebHook.receiveMessage = function (payload, cb) {
-
-
+  FacebookWebHook.receiveMessage = function(payload, cb) {
     // ackn response to facebook
     cb(null, 'EVENT_RECEIVED');
-
 
     // parse message from facebook
     let messages = parser.parseMessage(payload);
@@ -86,7 +76,6 @@ module.exports = function (FacebookWebHook) {
     // send messages to interact.
     // for now we only will support the first text message!
     let message = messages[0];
-
 
     if (!message) {
       return;
@@ -97,8 +86,8 @@ module.exports = function (FacebookWebHook) {
 
     FacebookConfig.findOne({
       where: {
-        recipientId: message.receiverId
-      }
+        recipientId: message.receiverId,
+      },
     }, (err, config) => {
       if (err || !config) {
         return log.error('We don´t have a configuration for the receiverId %s', message.receiverId);
@@ -116,40 +105,34 @@ module.exports = function (FacebookWebHook) {
         // create service
         service = new InteractService(config.tenantId, config.apiKey, config.environment, config.domainName, [{
           key: 'channel',
-          value: 'facebook'
+          value: 'facebook',
         }]);
         InteractServiceMap[config.id] = service;
       }
 
       // TODO validate the kind of text message before sending?
       service.sendMessage(message.requestId, {
-        text: message.text
+        text: message.text,
       }).then((response) => {
-
         // generate interact model
         const mappedResponse = mapper.translate(response);
 
         // send via facebook responder
         responder.respond(mappedResponse, message, config.apiToken);
-
       });
-
     });
-
   };
 
   FacebookWebHook.remoteMethod('receiveMessage', {
 
     accepts: [
-      {arg: 'data', type: 'object', http: {source: 'body'}}
+      {arg: 'data', type: 'object', http: {source: 'body'}},
     ],
     http: {
       path: '/webhook',
-      verb: 'post'
+      verb: 'post',
     },
     returns: {type: 'string', root: true},
 
   });
-
-
 };
