@@ -1,10 +1,12 @@
 import {FacebookMessage} from "./FacebookMessageParser";
-import LOG = require('../../../util/logging');
+// @ts-ignore
+import LOG = require("../../../util/logging");
 import {parse} from 'node-html-parser';
 
 import TextModel from "../../nlp/model/TextModel";
 
 import axios from 'axios';
+import TextInputModel from "../../nlp/model/TextInputModel";
 
 const log = LOG.log('Facebook Responder');
 
@@ -15,6 +17,7 @@ export default class FacebookResponder {
 
   }
 
+
   respond(responseMessage: any, requestMessage: FacebookMessage, apiToken: string): void {
 
     // switch the different cases. For now we only have text response
@@ -24,28 +27,32 @@ export default class FacebookResponder {
     let payload: any = {
       recipient: {
         id: requestMessage.senderId
-      }
+      },
     };
 
 
     if (responseMessage.interact && responseMessage.interact.length > 0) {
 
-      responseMessage.interact.map((item) => {
+      responseMessage.interact.map((item: any) => {
+
+        if (!payload.message) {
+          payload.message = {
+            text: ''
+          };
+        }
 
         switch (item.type) {
           case TextModel.name:
 
-            // extract plain text without html
-            const plainText = this.extractText(item.text);
-
-            if (!payload.message) {
-              payload.message = {
-                text: ''
-              };
-            }
-
             // append the messages
-            payload.message.text += plainText + '\n';
+            payload.message.text += this.extractText(item.text) + '\n\n';
+
+            break;
+
+
+          case TextInputModel.name:
+
+            payload.message.text += this.extractText(item.questionLabel) + '\n\n';
 
             break;
         }
@@ -53,7 +60,7 @@ export default class FacebookResponder {
       });
     } else if (responseMessage.nlp && responseMessage.nlp.length > 0) {
 
-      responseMessage.nlp.map((item) => {
+      responseMessage.nlp.map((item: any) => {
         if (!payload.message) {
           payload.message = {
             text: ''
@@ -68,7 +75,7 @@ export default class FacebookResponder {
       // no response at all?
       log.warn('got not response at all!');
       payload.message = {
-        text: 'Haven´t got any response neigher from nlp nore from interact.'
+        text: 'Haven´t got any response that we currently support either from nlp or from interact.',
       };
     }
 
@@ -86,7 +93,15 @@ export default class FacebookResponder {
 
 
   private extractText(html: string): string {
-    return parse(html).text;
+
+    const parsed = parse(html);
+
+    if (parsed.text !== '') {
+      return parsed.text;
+    } else {
+      return html;
+    }
+
   }
 
 
