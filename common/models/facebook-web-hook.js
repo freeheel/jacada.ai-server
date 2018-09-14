@@ -1,4 +1,6 @@
 'use strict';
+const TextInputModel = require('../util/nlp/model/TextInputModel');
+
 const log = require('../util/logging').log('Facebook WebHook');
 
 const InteractService = require('../util/nlp/InteractService').default;
@@ -148,11 +150,61 @@ module.exports = function (FacebookWebHook) {
         };
       }
 
-      service.sendMessage(externalId, {
-        text: message.text,
-      }).then((response) => {
+
+      // Check if response should be treated like simple text or if we requested some input
+      // if input, we need to send it as formData
+
+      let messageToSend = {};
+
+      const queuedFormData = ConversationMap[externalId].formDataQueue;
+      if (queuedFormData) {
+
+        if (log.info) {
+          log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
+        }
+
+
+        // Note - We can only get one at a time from the facebook client. We are expecting that interact won´t
+        // return a form with more than one input!
+
+        if (queuedFormData.length > 1) {
+          return log.error('We received more than one input form request from interact. this is not valid for facebook clients!');
+        }
+
+        queuedFormData.map((formData) => {
+          messageToSend.formData = [
+            {
+              key: formData.key,
+              value: message.text,
+            },
+          ];
+
+        });
+
+      } else {
+        messageToSend.text = message.text;
+      }
+
+      service.sendMessage(externalId, messageToSend).then((response) => {
         // generate interact model
         const mappedResponse = mapper.translate(response);
+
+        // check if we have form data. If so, we store it
+        mappedResponse.interact.map((item) => {
+
+          if (item.type === TextInputModel.default.name) {
+            if (!ConversationMap[externalId].formDataQueue) {
+              ConversationMap[externalId].formDataQueue = [];
+            }
+
+            ConversationMap[externalId].formDataQueue.push({
+              key: item.parameterId,
+              value: null,
+            })
+
+          }
+
+        });
 
         // send via facebook responder
         responder.respond(mappedResponse, message, config.apiToken);

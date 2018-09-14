@@ -75,16 +75,28 @@ export default class InteractService {
           }
         };
 
-        // append additional variables if available
-        this.additionalParams.map((param) => {
-          body.variables[param.key] = param.value;
-        });
 
-        console.log(body);
+      } else if (message.formData) {
+        body = {
+          conversationActionDto: {
+            actionName: 'CONTINUE_FLOW',
+          },
+          variables: {},
+          inputParameters: {}
+        };
+
+        message.formData.map((formData : any) => {
+          body.inputParameters[formData.key] = formData.value;
+        });
 
       } else {
         reject('Not yet implemented. Expecting a text property in the message')
       }
+
+      // append additional variables if available
+      this.additionalParams.map((param) => {
+        body.variables[param.key] = param.value;
+      });
 
 
       if (!this.sessionMap[externalId]) {

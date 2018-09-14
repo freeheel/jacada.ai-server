@@ -63,6 +63,10 @@ export default class InteractModelMapper {
 
     let botResponse = response.nlpEngineResponse;
 
+    if(!botResponse) {
+      return transformedResponses;
+    }
+
     let aiVendor = 'NaN';
 
     // check which vendor
