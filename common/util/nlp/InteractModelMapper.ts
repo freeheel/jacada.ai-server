@@ -1,7 +1,7 @@
 import TextModel from "./model/TextModel";
 import TextInputModel from "./model/TextInputModel";
 import ChoiceModel from "./model/ChoiceModel";
-
+import AttachmentModel from "./model/AttachmentModel";
 export default class InteractModelMapper {
 
   constructor() {
@@ -20,7 +20,14 @@ export default class InteractModelMapper {
     const sections = interactResponse.elementResponse.page.pageContent.contentSections;
 
     sections.map((section: any) => {
-      console.log('Element Type ' + section.elementType);
+      let innerHTML :string = section.sectionHeader.innerHtml;
+      let type:string;
+      if(innerHTML.includes('<img')) {
+        type = 'image';
+        let imgUrl = section.sectionHeader.innerHtml.split('<img')[1];
+        imgUrl = imgUrl.split("\"")[1];
+        transformedResponses.push( new AttachmentModel(section, '', type, imgUrl ));
+      }
       if (section.elementType === 'QUESTION_CHOICES_ELEMENT') {
         transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
        } else if (section.sectionChoices && section.sectionChoices[0].id) {
@@ -37,7 +44,7 @@ export default class InteractModelMapper {
 
           else if (section.sectionChoices[0].uploadImageList) {
 
-              transformedResponses.push(new ImageModel(section, interactResponse.elementResponse.page.pageNavigation));
+              transformedResponses.push(new AttachmentModel(section, interactResponse.elementResponse.page.pageNavigation));
           } else {
               transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
           }
