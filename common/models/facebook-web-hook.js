@@ -159,7 +159,7 @@ module.exports = function (FacebookWebHook) {
         let messageToSend = {};
 
         // resetPath
-        if (message.text.toLowerCase() === 'reset') {
+        if (message.text && message.text.toLowerCase() === 'reset') {
           if (log.info) {
             log.info('Going to reset client session.');
           }
