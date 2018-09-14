@@ -7,6 +7,7 @@ import TextModel from "../../nlp/model/TextModel";
 
 import axios from 'axios';
 import TextInputModel from "../../nlp/model/TextInputModel";
+import ChoiceModel, {Choice} from "../../nlp/model/ChoiceModel";
 
 const log = LOG.log('Facebook Responder');
 
@@ -53,6 +54,27 @@ export default class FacebookResponder {
           case TextInputModel.name:
 
             payload.message.text += this.extractText(item.questionLabel) + '\n\n';
+
+            break;
+
+          case ChoiceModel.name:
+
+            // transform into buttons with payload
+            payload.message.text += this.extractText(item.questionLabel) + '\n\n';
+            payload.message.quick_replies = [];
+            item.choices.map((choice: Choice) => {
+
+              payload.message.quick_replies.push({
+                content_type:'text',
+                title: choice.label,
+                payload: {
+                  choice: choice,
+                  sectionId: item.parameterId,
+                },
+                //"image_url":"http://example.com/img/red.png"
+              })
+
+            });
 
             break;
         }

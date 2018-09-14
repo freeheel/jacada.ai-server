@@ -17,6 +17,7 @@ export default class ChoiceModel extends BaseModel {
     questionLabel: string;
     triggerNavigation: boolean = false;
     matrixLayout: boolean = false;
+    parameterId: string;
     choices : Choice[] = [];
 
 
@@ -36,6 +37,8 @@ export default class ChoiceModel extends BaseModel {
         super(ChoiceModel.name, section);
         this.questionLabel = section.sectionLabel;
         this.triggerNavigation = false;
+        this.parameterId = section.id;
+
 
         if (section.sectionChoices[0].clickToContinue) {
             this.triggerNavigation = true;
