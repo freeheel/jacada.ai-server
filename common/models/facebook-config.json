@@ -29,6 +29,10 @@
     },
     "domainName": {
       "type": "string"
+    },
+    "sessionTimeout": {
+      "type": "integer",
+      "default": 1800000
     }
   },
   "validations": [],

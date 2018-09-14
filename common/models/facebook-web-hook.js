@@ -12,18 +12,18 @@ let mapper = new InteractModelMapper();
 const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
 let responder = new FacebookResponder();
 
-module.exports = function(FacebookWebHook) {
-  FacebookWebHook.afterRemote('verify', function(context, remoteMethodOutput, next) {
+module.exports = function (FacebookWebHook) {
+  FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.afterRemote('receiveMessage', function(context, remoteMethodOutput, next) {
+  FacebookWebHook.afterRemote('receiveMessage', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.verify = function(mode, challenge, verifyToken, cb) {
+  FacebookWebHook.verify = function (mode, challenge, verifyToken, cb) {
     if (log.debug) {
       log.debug('go verification message from facebook server with mode: %s, challange: %s and verificationToken: %s', mode, challenge, verifyToken);
     }
@@ -64,9 +64,11 @@ module.exports = function(FacebookWebHook) {
 
   // InteractServiceMap
 
+  // TODO make both more reliable
   let InteractServiceMap = {};
+  let ConversationMap = {};
 
-  FacebookWebHook.receiveMessage = function(payload, cb) {
+  FacebookWebHook.receiveMessage = function (payload, cb) {
     // ackn response to facebook
     cb(null, 'EVENT_RECEIVED');
 
@@ -111,7 +113,42 @@ module.exports = function(FacebookWebHook) {
       }
 
       // TODO validate the kind of text message before sending?
-      service.sendMessage(message.requestId, {
+
+      let externalId = message.requestId;
+      if (ConversationMap[externalId]) {
+        // check if it´s to old.
+
+        const lastInteractionTime = ConversationMap[externalId].lastInteractionTime;
+        if ((lastInteractionTime + config.sessionTimeout) > Date.now()) {
+          if (log.info) {
+            log.info('Last interaction happened after configured session timeout. Creating a new id.');
+          }
+
+          const now = Date.now();
+
+          ConversationMap[externalId] = {
+            id: externalId + '_' + now,
+            lastInteractionTime: now,
+          };
+
+        } else {
+          if (log.info) {
+            log.info('Last interaction happended before configured session timeout. Keeping id and update last interaction');
+          }
+          ConversationMap[externalId].lastInteractionTime = Date.now();
+        }
+
+        externalId = ConversationMap[externalId].id;
+
+      } else {
+        // we are just creating it, so we can use the message id as external identifier.
+        ConversationMap[externalId] = {
+          id: externalId,
+          lastInteractionTime: Date.now(),
+        };
+      }
+
+      service.sendMessage(externalId, {
         text: message.text,
       }).then((response) => {
         // generate interact model
