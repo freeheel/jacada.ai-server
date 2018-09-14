@@ -1,6 +1,10 @@
 import axios from 'axios';
 import Promise from "bluebird";
 
+// @ts-ignore
+import LOG = require("../../util/logging");
+const pLog = LOG.performanceLog();
+
 /**
  * Simple Api helper class to send the ajax
  */
@@ -33,6 +37,8 @@ export default class InteractService {
 
   startConversation(externalId: string): Promise<any> {
 
+    const pStart = Date.now();
+
     return new Promise((resolve, reject) => {
 
 
@@ -51,11 +57,17 @@ export default class InteractService {
 
       }).then((startResponse: any) => {
 
+        const stop = Date.now();
+
+        pLog.log('start conversation', 'it took ' + (Date.now() - pStart) + 'ms');
+
         this.sessionMap[externalId] = startResponse.data.sessionId;
 
         resolve(startResponse.data.sessionId);
 
       }).catch((err) => {
+        pLog.log('start conversation', 'error after ' + (Date.now() - pStart) + 'ms');
+
         reject(err);
       });
 
@@ -63,6 +75,8 @@ export default class InteractService {
   }
 
   sendMessage(externalId: string, message: any): Promise<any> {
+
+    const pStart = Date.now();
 
     return new Promise<any>(((resolve, reject) => {
 
@@ -109,9 +123,14 @@ export default class InteractService {
             },
             responseType: 'json',
           }).then((data) => {
-            console.log(JSON.stringify(data.data));
+
+            pLog.log('start conversation and send message', 'it took ' + (Date.now() - pStart) + 'ms');
+
             resolve(data.data);
           }).catch((err) => {
+
+            pLog.log('start conversation and send message', 'error after ' + (Date.now() - pStart) + 'ms');
+
             reject(err);
           });
         });
@@ -129,45 +148,14 @@ export default class InteractService {
           responseType: 'json',
         }).then((data) => {
 
-          console.log(JSON.stringify(data.data));
+          pLog.log('send message', 'it took ' + (Date.now() - pStart) + 'ms');
 
           resolve(data.data);
         }).catch((err) => {
+          pLog.log('send message', 'error after ' + (Date.now() - pStart) + 'ms');
           reject(err);
         });
       }
-
-      /*
-
-      else if (message.data) {
-
-          // build action message!
-          let payload = {
-              conversationActionDto: {
-                  actionName: message.data.action,
-              },
-              inputParameters: {}
-          };
-          payload.inputParameters[message.data.payload.key] = message.data.payload.value;
-          body = JSON.stringify(payload);
-      } else if (message.queuedFormData) {
-          let payload = {
-              conversationActionDto: {
-                  actionName: 'CONTINUE_FLOW',
-              },
-              inputParameters: {}
-          };
-
-          _.each(message.queuedFormData, (data, key) => {
-              payload.inputParameters[key] = data.value;
-          });
-
-          body = JSON.stringify(payload);
-
-      }
-
-      */
-
 
     }));
 
@@ -176,85 +164,5 @@ export default class InteractService {
   resetSession(externalId: string): void {
     delete this.sessionMap[externalId];
   }
-
-  /*
-
-  queueFormData(data) {
-
-      if (!this.queuedFormData) {
-          this.queuedFormData = {};
-
-          MessageStore.emit('ModeChanged', ComposerInputTypes.composerInputTypes.ADD_FORM_DATA);
-
-      }
-      this.queuedFormData[data.section.id] = data;
-
-  }
-
-  queueImageData(data) {
-      this.queuedImageUploadData = data;
-  }
-
-  submitFormData() {
-      this.sendMessage({
-          queuedFormData: this.queuedFormData
-      }).then(() => {
-
-      }).catch((err) => {
-
-      });
-  }
-
-  submitImageData(event) {
-      // TODO we will store it once the api is available. For now it´s only in the history
-
-
-      // TODO check if section has navigation
-
-      if (event.pageNavigation.navigationRight.buttonAction === 'CONTINUE_FLOW') {
-
-          this.sendMessage({
-              queuedFormData: []
-          }).then(() => {
-          }).catch((err) => {
-          });
-
-      } else {
-          // TODO - just add a standard response
-          this.emit('synchronousBotResponse', [new SimpleTextModel('Thanks for uploading the picture', 'bot')]);
-      }
-
-      MessageStore.emit('ModeChanged', ComposerInputTypes.defaultInputType);
-  }
-
-  removeFormData() {
-      delete this.queuedFormData;
-
-      MessageStore.emit('ModeChanged', ComposerInputTypes.defaultInputType);
-
-  }
-
-  handleSynchronousBotResponse(response) {
-
-      MessageStore.emit('ModeChanged', ComposerInputTypes.defaultInputType);
-
-      // transform response to be handled further in the UI.
-      let uiModel = this.botResponseTransformator.transform(response.data);
-
-      this.emit('synchronousBotResponse', uiModel);
-
-
-  }
-
-  handleErrorBotResponse(err) {
-      MessageStore.emit('ModeChanged', ComposerInputTypes.defaultInputType);
-      console.warn('Bot error');
-
-      // transform response to be handled further in the UI.
-      let uiModel = [new SimpleTextModel('We are sorry, but an unexpected error happened. Please try again.', 'bot')];
-
-      this.emit('synchronousBotResponse', uiModel);
-  }
-*/
 
 }
