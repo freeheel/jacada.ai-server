@@ -1,5 +1,5 @@
 'use strict';
-import TextModel from "../util/nlp/model/TextModel";
+const TextModel = require('../util/nlp/model/TextModel');
 
 const TextInputModel = require('../util/nlp/model/TextInputModel');
 
