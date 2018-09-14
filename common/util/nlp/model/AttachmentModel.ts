@@ -6,7 +6,7 @@ import BaseModel from "./BaseModel";
 
 export default class AttachmentModel extends BaseModel {
 
-    type: string;
+    attachedType: string;
     url: string;
     label: string;
     triggerNavigation: boolean;
@@ -14,12 +14,12 @@ export default class AttachmentModel extends BaseModel {
 
 
 
-    constructor(section: any, pageNavigation: any, type:string, url:string) {
+    constructor(section: any, pageNavigation: any, attachedType:string, url:string) {
         super(AttachmentModel.name, section);
         this.label = section.sectionLabel;
         this.triggerNavigation = true;
         this.pageNavigation = pageNavigation;
-        this.type = type;
+        this.attachedType = attachedType;
         this.url = url;
     }
 

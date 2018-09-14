@@ -9,6 +9,7 @@ import axios from 'axios';
 import TextInputModel from "../../nlp/model/TextInputModel";
 import AttachmentModel from "../../nlp/model/AttachmentModel";
 import ChoiceModel, {Choice} from "../../nlp/model/ChoiceModel";
+import TemplateModel from "../../nlp/model/TemplateModel";
 
 const log = LOG.log('Facebook Responder');
 
@@ -19,12 +20,8 @@ export default class FacebookResponder {
 
   }
 
-
+//Response back to facebook
   respond(responseMessage: any, requestMessage: FacebookMessage, apiToken: string): void {
-
-    // switch the different cases. For now we only have text response
-
-    // let´t see if we have a interact response
 
     let payload: any = {
       recipient: {
@@ -32,41 +29,32 @@ export default class FacebookResponder {
       },
     };
 
-
     if (responseMessage.interact && responseMessage.interact.length > 0) {
 
       responseMessage.interact.map((item: any) => {
-
         if (!payload.message) {
           payload.message = {
             text: ''
           };
         }
-
         switch (item.type) {
           case TextModel.name:
-
             // append the messages
             payload.message.text += this.extractText(item.text) + '\n\n';
-
             break;
 
-
           case TextInputModel.name:
-
             payload.message.text += this.extractText(item.questionLabel) + '\n\n';
-
             break;
 
           case ChoiceModel.name:
-
             // transform into buttons with payload
             payload.message.text += this.extractText(item.questionLabel) + '\n\n';
             payload.message.quick_replies = [];
             item.choices.map((choice: Choice) => {
 
               payload.message.quick_replies.push({
-                content_type:'text',
+                content_type: 'text',
                 title: choice.label,
                 payload: JSON.stringify({
                   choice: choice,
@@ -74,9 +62,53 @@ export default class FacebookResponder {
                 })
                 //"image_url":"http://example.com/img/red.png"
               })
-
             });
 
+            break;
+          case AttachmentModel.name :
+            //Switch on attachedType
+            if(item.attachedType == 'video'){
+              delete payload.message.text;
+              let url = '';
+              url = item.url;
+              if (url != 'undefined'){
+                payload.message.attachment = {
+                  type: 'template',
+                  payload: {
+                    template_type: 'open_graph',
+                    elements: [{
+                      url: item.url
+                    }]
+                  }
+                }
+              }
+            } else if (item.attachedType == 'audio'){
+              delete payload.message.text;
+              console.log('Item type: ' + item.attachedType);
+                payload.message.attachment = {
+                  type: item.attachedType,
+                  payload: {
+                    url: item.url,
+                    is_reusable: true
+                  }
+                }
+            } else if (item.attachedType == 'image') {
+              delete payload.message.text;
+              let url = '';
+              url = item.url;
+              if (url != 'undefined'){
+                payload.message.attachment = {
+                  type: item.attachedType,
+                  payload: {
+                    url: item.url,
+                    is_reusable: true
+                  }
+                }
+              }
+            }
+
+            break;
+          case TemplateModel.name :
             break;
         }
 
@@ -102,6 +134,8 @@ export default class FacebookResponder {
       };
     }
 
+    console.log(payload);
+
     // send message:
     const url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + apiToken;
     axios.post(url, payload).then((resp) => {
@@ -110,7 +144,7 @@ export default class FacebookResponder {
       }
     }).catch(err => {
       log.error('Error during answering to facebook chat request. %s, with payload %s', err.response.data.error.message, JSON.stringify(payload));
-    })
+    });
 
   }
 
