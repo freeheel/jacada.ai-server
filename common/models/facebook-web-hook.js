@@ -16,18 +16,20 @@ let mapper = new InteractModelMapper();
 const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
 let responder = new FacebookResponder();
 
-module.exports = function(FacebookWebHook) {
-  FacebookWebHook.afterRemote('verify', function(context, remoteMethodOutput, next) {
+const stringify = require('json-stringify-safe');
+
+module.exports = function (FacebookWebHook) {
+  FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.afterRemote('receiveMessage', function(context, remoteMethodOutput, next) {
+  FacebookWebHook.afterRemote('receiveMessage', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.verify = function(mode, challenge, verifyToken, cb) {
+  FacebookWebHook.verify = function (mode, challenge, verifyToken, cb) {
     if (log.debug) {
       log.debug('go verification message from facebook server with mode: %s, challange: %s and verificationToken: %s', mode, challenge, verifyToken);
     }
@@ -72,168 +74,173 @@ module.exports = function(FacebookWebHook) {
   let InteractServiceMap = {};
   let ConversationMap = {};
 
-  FacebookWebHook.receiveMessage = function(payload, cb) {
+  FacebookWebHook.receiveMessage = function (payload, cb) {
     // ackn response to facebook
     cb(null, 'EVENT_RECEIVED');
 
-    // parse message from facebook
-    let messages = parser.parseMessage(payload);
+    try {
+      // parse message from facebook
+      let messages = parser.parseMessage(payload);
 
-    // send messages to interact.
-    // for now we only will support the first text message!
-    let message = messages[0];
+      // send messages to interact.
+      // for now we only will support the first text message!
+      let message = messages[0];
 
-    if (!message) {
-      return;
-    }
-
-    // retrieve config that matches the recipient
-    const FacebookConfig = require('../../server/server').models.FacebookConfig;
-
-    FacebookConfig.findOne({
-      where: {
-        recipientId: message.receiverId,
-      },
-    }, (err, config) => {
-      if (err || !config) {
-        return log.error('We don´t have a configuration for the receiverId %s', message.receiverId);
+      if (!message) {
+        return;
       }
 
-      if (log.info) {
-        log.info('Found facebook config for receiver %s', message.receiverId);
-      }
+      // retrieve config that matches the recipient
+      const FacebookConfig = require('../../server/server').models.FacebookConfig;
 
-      // check if we have a service already
-      let service;
-      if (InteractServiceMap[config.id]) {
-        service = InteractServiceMap[config.id];
-      } else {
-        // create service
-        service = new InteractService(config.tenantId, config.apiKey, config.environment, config.domainName, [{
-          key: 'channel',
-          value: 'facebook',
-        }]);
-        InteractServiceMap[config.id] = service;
-      }
-
-      // TODO validate the kind of text message before sending?
-
-      let externalId = message.requestId;
-      if (ConversationMap[externalId]) {
-        // check if it´s to old.
-
-        const lastInteractionTime = ConversationMap[externalId].lastInteractionTime;
-        if ((lastInteractionTime + config.sessionTimeout) < Date.now()) {
-          if (log.info) {
-            log.info('Last interaction happened after configured session timeout. Creating a new id.');
-          }
-
-          const now = Date.now();
-
-          ConversationMap[externalId] = {
-            id: externalId + '_' + now,
-            lastInteractionTime: now,
-          };
-        } else {
-          if (log.info) {
-            log.info('Last interaction happended before configured session timeout. Keeping id and update last interaction');
-          }
-          ConversationMap[externalId].lastInteractionTime = Date.now();
+      FacebookConfig.findOne({
+        where: {
+          recipientId: message.receiverId,
+        },
+      }, (err, config) => {
+        if (err || !config) {
+          return log.error('We don´t have a configuration for the receiverId %s', message.receiverId);
         }
 
-        externalId = ConversationMap[externalId].id;
-      } else {
-        // we are just creating it, so we can use the message id as external identifier.
-        ConversationMap[externalId] = {
-          id: externalId,
-          lastInteractionTime: Date.now(),
-        };
-      }
-
-      // Check if response should be treated like simple text or if we requested some input
-      // if input, we need to send it as formData
-
-      let messageToSend = {};
-
-      // resetPath
-      if (message.text.toLowerCase() === 'reset') {
         if (log.info) {
-          log.info('Going to reset client session.');
+          log.info('Found facebook config for receiver %s', message.receiverId);
         }
 
-        delete ConversationMap[externalId];
-        service.resetSession(externalId);
-
-        const resetResponse = {
-          interact: [
-            new TextModel('Reset done!'),
-          ],
-        };
-
-        return responder.respond(resetResponse, message, config.apiToken);
-      }
-
-      const queuedFormData = ConversationMap[externalId].formDataQueue;
-      if (queuedFormData) {
-        if (log.info) {
-          log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
-        }
-
-        // Note - We can only get one at a time from the facebook client. We are expecting that interact won´t
-        // return a form with more than one input!
-
-        if (queuedFormData.length > 1) {
-          return log.error('We received more than one input form request from interact. this is not valid for facebook clients!');
-        }
-
-        queuedFormData.map((formData) => {
-          messageToSend.formData = [
-            {
-              key: formData.key,
-              value: message.text,
-            },
-          ];
-        });
-
-        // remove queued form data.
-        delete ConversationMap[externalId].formDataQueue;
-      } else {
-        // if quick reply we need to check if we have to continue the flow. Meaning we need to submit form data.
-
-        if (message.payload) {
-          messageToSend.formData = [
-            {
-              key: message.payload.sectionId,
-              value: message.payload.choice.parameterId,
-            },
-          ];
+        // check if we have a service already
+        let service;
+        if (InteractServiceMap[config.id]) {
+          service = InteractServiceMap[config.id];
         } else {
-          messageToSend.text = message.text;
+          // create service
+          service = new InteractService(config.tenantId, config.apiKey, config.environment, config.domainName, [{
+            key: 'channel',
+            value: 'facebook',
+          }]);
+          InteractServiceMap[config.id] = service;
         }
-      }
 
-      service.sendMessage(externalId, messageToSend).then((response) => {
-        // generate interact model
-        const mappedResponse = mapper.translate(response);
+        // TODO validate the kind of text message before sending?
 
-        // check if we have form data. If so, we store it
-        mappedResponse.interact.map((item) => {
-          if (item.type === TextInputModel.default.name) {
-            if (!ConversationMap[externalId].formDataQueue) {
-              ConversationMap[externalId].formDataQueue = [];
+        let externalId = message.requestId;
+        if (ConversationMap[externalId]) {
+          // check if it´s to old.
+
+          const lastInteractionTime = ConversationMap[externalId].lastInteractionTime;
+          if ((lastInteractionTime + config.sessionTimeout) < Date.now()) {
+            if (log.info) {
+              log.info('Last interaction happened after configured session timeout. Creating a new id.');
             }
 
-            ConversationMap[externalId].formDataQueue.push({
-              key: item.parameterId,
-              value: null,
-            });
-          }
-        });
+            const now = Date.now();
 
-        // send via facebook responder
-        responder.respond(mappedResponse, message, config.apiToken);
+            ConversationMap[externalId] = {
+              id: externalId + '_' + now,
+              lastInteractionTime: now,
+            };
+          } else {
+            if (log.info) {
+              log.info('Last interaction happended before configured session timeout. Keeping id and update last interaction');
+            }
+            ConversationMap[externalId].lastInteractionTime = Date.now();
+          }
+
+          externalId = ConversationMap[externalId].id;
+        } else {
+          // we are just creating it, so we can use the message id as external identifier.
+          ConversationMap[externalId] = {
+            id: externalId,
+            lastInteractionTime: Date.now(),
+          };
+        }
+
+        // Check if response should be treated like simple text or if we requested some input
+        // if input, we need to send it as formData
+
+        let messageToSend = {};
+
+        // resetPath
+        if (message.text.toLowerCase() === 'reset') {
+          if (log.info) {
+            log.info('Going to reset client session.');
+          }
+
+          delete ConversationMap[externalId];
+          service.resetSession(externalId);
+
+          const resetResponse = {
+            interact: [
+              new TextModel('Reset done!'),
+            ],
+          };
+
+          return responder.respond(resetResponse, message, config.apiToken);
+        }
+
+        const queuedFormData = ConversationMap[externalId].formDataQueue;
+        if (queuedFormData) {
+          if (log.info) {
+            log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
+          }
+
+          // Note - We can only get one at a time from the facebook client. We are expecting that interact won´t
+          // return a form with more than one input!
+
+          if (queuedFormData.length > 1) {
+            return log.error('We received more than one input form request from interact. this is not valid for facebook clients!');
+          }
+
+          queuedFormData.map((formData) => {
+            messageToSend.formData = [
+              {
+                key: formData.key,
+                value: message.text,
+              },
+            ];
+          });
+
+          // remove queued form data.
+          delete ConversationMap[externalId].formDataQueue;
+        } else {
+          // if quick reply we need to check if we have to continue the flow. Meaning we need to submit form data.
+
+          if (message.payload) {
+            messageToSend.formData = [
+              {
+                key: message.payload.sectionId,
+                value: message.payload.choice.parameterId,
+              },
+            ];
+          } else {
+            messageToSend.text = message.text;
+          }
+        }
+
+        service.sendMessage(externalId, messageToSend).then((response) => {
+          // generate interact model
+          const mappedResponse = mapper.translate(response);
+
+          // check if we have form data. If so, we store it
+          mappedResponse.interact.map((item) => {
+            if (item.type === TextInputModel.default.name) {
+              if (!ConversationMap[externalId].formDataQueue) {
+                ConversationMap[externalId].formDataQueue = [];
+              }
+
+              ConversationMap[externalId].formDataQueue.push({
+                key: item.parameterId,
+                value: null,
+              });
+            }
+          });
+
+          // send via facebook responder
+          responder.respond(mappedResponse, message, config.apiToken);
+        });
       });
-    });
+    } catch (ex) {
+      log.error('Error on facebook message handler, %s', stringify(ex));
+    }
+
   };
 
   FacebookWebHook.remoteMethod('receiveMessage', {
