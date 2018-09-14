@@ -31,7 +31,7 @@
       "type": "string"
     },
     "sessionTimeout": {
-      "type": "integer",
+      "type": "number",
       "default": 1800000
     }
   },
