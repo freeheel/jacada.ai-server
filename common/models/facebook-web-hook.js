@@ -32,7 +32,7 @@ module.exports = function (FacebookWebHook) {
 
     FacebookConfig.findOne({
       where: {
-        verifyToken: verifyToken,
+        verificationToken: verifyToken,
       },
     }, (err, instance) => {
       if (err || !instance) {
@@ -119,7 +119,7 @@ module.exports = function (FacebookWebHook) {
         // check if it´s to old.
 
         const lastInteractionTime = ConversationMap[externalId].lastInteractionTime;
-        if ((lastInteractionTime + config.sessionTimeout) > Date.now()) {
+        if ((lastInteractionTime + config.sessionTimeout) < Date.now()) {
           if (log.info) {
             log.info('Last interaction happened after configured session timeout. Creating a new id.');
           }
