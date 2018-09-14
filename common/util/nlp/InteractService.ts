@@ -70,9 +70,7 @@ export default class InteractService {
       if (message.text) {
         body = {
           text: message.text,
-          variables: {
-
-          }
+          variables: {}
         };
 
 
@@ -85,7 +83,7 @@ export default class InteractService {
           inputParameters: {}
         };
 
-        message.formData.map((formData : any) => {
+        message.formData.map((formData: any) => {
           body.inputParameters[formData.key] = formData.value;
         });
 
@@ -173,6 +171,10 @@ export default class InteractService {
 
     }));
 
+  }
+
+  resetSession(externalId: string): void {
+    delete this.sessionMap[externalId];
   }
 
   /*

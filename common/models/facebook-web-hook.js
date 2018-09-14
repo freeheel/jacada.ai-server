@@ -1,4 +1,6 @@
 'use strict';
+import TextModel from "../util/nlp/model/TextModel";
+
 const TextInputModel = require('../util/nlp/model/TextInputModel');
 
 const log = require('../util/logging').log('Facebook WebHook');
@@ -195,6 +197,29 @@ module.exports = function (FacebookWebHook) {
           ];
         } else {
           messageToSend.text = message.text;
+
+
+          // resetPath
+
+          if (message.text.toLowerCase() === 'reset') {
+            if (log.info) {
+              log.info('Going to reset client session.');
+            }
+
+            delete ConversationMap[externalId];
+            service.resetSession(externalId);
+
+            const resetResponse = {
+              interact: [
+                new TextModel('Reset done!')
+              ]
+            };
+
+
+            return responder.respond(resetResponse, message, config.apiToken);
+
+          }
+
         }
 
       }
@@ -214,7 +239,7 @@ module.exports = function (FacebookWebHook) {
             ConversationMap[externalId].formDataQueue.push({
               key: item.parameterId,
               value: null,
-            })
+            });
 
           }
 
