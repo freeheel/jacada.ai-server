@@ -67,10 +67,10 @@ export default class FacebookResponder {
               payload.message.quick_replies.push({
                 content_type:'text',
                 title: choice.label,
-                payload: {
+                payload: JSON.stringify({
                   choice: choice,
                   sectionId: item.parameterId,
-                },
+                })
                 //"image_url":"http://example.com/img/red.png"
               })
 

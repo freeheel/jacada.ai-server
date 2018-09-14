@@ -163,7 +163,6 @@ module.exports = function (FacebookWebHook) {
           log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
         }
 
-
         // Note - We can only get one at a time from the facebook client. We are expecting that interact won´t
         // return a form with more than one input!
 
@@ -181,8 +180,23 @@ module.exports = function (FacebookWebHook) {
 
         });
 
+        // remove queued form data.
+        delete ConversationMap[externalId].formDataQueue;
+
       } else {
-        messageToSend.text = message.text;
+        // if quick reply we need to check if we have to continue the flow. Meaning we need to submit form data.
+
+        if (message.payload) {
+          messageToSend.formData = [
+            {
+              key: message.payload.sectionId,
+              value: message.payload.choice.parameterId
+            },
+          ];
+        } else {
+          messageToSend.text = message.text;
+        }
+
       }
 
       service.sendMessage(externalId, messageToSend).then((response) => {

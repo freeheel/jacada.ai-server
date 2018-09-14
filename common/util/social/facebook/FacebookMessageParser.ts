@@ -24,6 +24,16 @@ export class FacebookTextMessage extends FacebookMessage {
   }
 }
 
+export class FacebookQuickReply extends FacebookMessage {
+
+  payload: any;
+
+  constructor(requestId: string, senderId: string, receiverId: string, messageId: string, payload: string) {
+    super(requestId, senderId, receiverId, messageId);
+    this.payload = JSON.parse(payload);
+  }
+}
+
 
 export default class FacebookMessageParser {
 
@@ -35,15 +45,21 @@ export default class FacebookMessageParser {
 
     let res: FacebookMessage[] = [];
 
-    message.entry.forEach((item) => {
+    message.entry.forEach((item: any) => {
 
       if (item.messaging) {
-        item.messaging.forEach((messageObject) => {
+        item.messaging.forEach((messageObject: any) => {
           if (!messageObject.message) {
             return;
           }
-          let textMessage = new FacebookTextMessage(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.text)
-          res.push(textMessage);
+
+          if (messageObject.message.quick_reply) {
+            let quickReplyMessage = new FacebookQuickReply(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.quick_reply.payload)
+            res.push(quickReplyMessage);
+          } else {
+            let textMessage = new FacebookTextMessage(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.text)
+            res.push(textMessage);
+          }
         });
       }
 
