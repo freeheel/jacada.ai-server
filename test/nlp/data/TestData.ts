@@ -1,6 +1,7 @@
 export default class TestData {
 
   testInputData: any;
+  testChoicesData: any;
 
   constructor() {
     this.testInputData = {
@@ -163,6 +164,91 @@ export default class TestData {
       }
     };
 
+    this.testChoicesData = {
+      "interactResponse": {
+        "flowInformation": {
+          "id": "2541afc397cb-286dec5193797b3c-afa3",
+          "name": "UtilityInc_PSE_Welcome1"
+        },
+        "elementResponse": {
+          "page": {
+            "pageNavigation": {
+              "navigationTitle": "Main Menu",
+              "pageReferenceName": "Main Menu",
+              "navigationRight": {"buttonState": "NORMAL", "buttonVisible": true, "buttonAction": "CONTINUE_FLOW"},
+              "navigationLeft": {
+                "buttonState": "NORMAL",
+                "buttonVisible": true,
+                "buttonLabel": "BTN_BACK",
+                "buttonAction": "server://navigationType?type=PREVIOUS&shouldSendFormData=true"
+              }
+            },
+            "pageContent": {
+              "contentHeader": {"id": "d4ed6eac9d93-09ab843ef9ba2e78-50f1", "innerHtml": ""},
+              "contentSections": [{
+                "id": "e916e040c13c-dcf66224c063a81b-f44f",
+                "sectionHeader": {"id": "e916e040c13c-dcf66224c063a81b-f44f", "innerHtml": ""},
+                "sectionLabel": "Thanks! Here are some topics I can help with, or you can type your question in the box below.",
+                "selectionType": "SINGLE",
+                "sectionNumberOfColumns": 0,
+                "sectionChoices": [{
+                  "id": "e916e040c13c-dcf66224c063a81b-f44f",
+                  "choiceValue": "0",
+                  "referenceName": "Choices",
+                  "choiceOption": {
+                    "id": "77639ee670bc-16570a32ba87a97d-8d2b",
+                    "buttonVisible": true,
+                    "buttonLabel": "Explain My Bill",
+                    "buttonImageName": ""
+                  }
+                }, {
+                  "id": "e916e040c13c-dcf66224c063a81b-f44f",
+                  "choiceValue": "0",
+                  "referenceName": "Choices",
+                  "choiceOption": {
+                    "id": "dc1e60a69870-a1a10139dcd8681a-ab76",
+                    "buttonVisible": true,
+                    "buttonLabel": "High Bill",
+                    "buttonImageName": ""
+                  }
+                }, {
+                  "id": "e916e040c13c-dcf66224c063a81b-f44f",
+                  "choiceValue": "0",
+                  "referenceName": "Choices",
+                  "choiceOption": {
+                    "id": "bbc6f21483e3-51f7007a02a6ae66-07b0",
+                    "buttonVisible": true,
+                    "buttonLabel": "Learn About FlatBill",
+                    "buttonImageName": ""
+                  }
+                }],
+                "sectionFooter": {"id": "e916e040c13c-dcf66224c063a81b-f44f", "innerHtml": ""},
+                "referenceName": "Choices",
+                "elementType": "QUESTION_CHOICES_ELEMENT"
+              }],
+              "contentFooter": {"id": "d4ed6eac9d93-09ab843ef9ba2e78-50f1", "innerHtml": ""},
+              "allowVerticalScroll": true,
+              "allowHorizonalScroll": false,
+              "pageType": "multiQuestion",
+              "time": 0
+            },
+            "pageMenu": {
+              "menuVisible": false,
+              "menuButtons": [{
+                "buttonState": "NORMAL",
+                "buttonVisible": true,
+                "buttonLabel": "BTN_MORE",
+                "buttonAction": "local://CURRENT",
+                "buttonImageName": "icon_more.png"
+              }]
+            },
+            "language": "en",
+            "contactUsPage": false
+          }
+        },
+        "context": {}
+      }
+    };
 
   }
 
