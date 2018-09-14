@@ -24,6 +24,19 @@ export class FacebookTextMessage extends FacebookMessage {
   }
 }
 
+export class FacebookAttachment extends FacebookMessage {
+
+  url: string;
+  attachmentType:string;
+
+  constructor(requestId: string, senderId: string, receiverId: string, messageId: string, url: string, attachmentType: string) {
+    super(requestId, senderId, receiverId, messageId);
+    this.url = url;
+    this.attachmentType = attachmentType;
+  }
+}
+
+
 export class FacebookQuickReply extends FacebookMessage {
 
   payload: any;
@@ -46,18 +59,23 @@ export default class FacebookMessageParser {
     let res: FacebookMessage[] = [];
 
     message.entry.forEach((item: any) => {
-
+      //console.log(item);
       if (item.messaging) {
         item.messaging.forEach((messageObject: any) => {
+
           if (!messageObject.message) {
             return;
           }
 
           if (messageObject.message.quick_reply) {
-            let quickReplyMessage = new FacebookQuickReply(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.quick_reply.payload)
+            let quickReplyMessage = new FacebookQuickReply(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.quick_reply.payload);
             res.push(quickReplyMessage);
           } else {
-            let textMessage = new FacebookTextMessage(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.text)
+            let textMessage = new FacebookTextMessage(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.text);
+            res.push(textMessage);
+          }
+          if(messageObject.message.attachments){
+            let textMessage = new FacebookAttachment(item.id, messageObject.sender.id, messageObject.recipient.id, messageObject.message.mid, messageObject.message.attachments[0].payload.url, messageObject.message.attachments[0].type);
             res.push(textMessage);
           }
         });

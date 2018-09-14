@@ -20,10 +20,10 @@ export default class InteractModelMapper {
     const sections = interactResponse.elementResponse.page.pageContent.contentSections;
 
     sections.map((section: any) => {
-
+      console.log('Element Type ' + section.elementType);
       if (section.elementType === 'QUESTION_CHOICES_ELEMENT') {
         transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
-      } else if (section.sectionChoices && section.sectionChoices[0].id) {
+       } else if (section.sectionChoices && section.sectionChoices[0].id) {
         if (section.sectionChoices.length === 1) {
 
           // TODO Ryan - add support for input and other rich outputs.

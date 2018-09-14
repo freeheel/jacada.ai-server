@@ -7,6 +7,7 @@ import TextModel from "../../nlp/model/TextModel";
 
 import axios from 'axios';
 import TextInputModel from "../../nlp/model/TextInputModel";
+import ImageModel from "../../nlp/model/ImageModel";
 import ChoiceModel, {Choice} from "../../nlp/model/ChoiceModel";
 
 const log = LOG.log('Facebook Responder');
