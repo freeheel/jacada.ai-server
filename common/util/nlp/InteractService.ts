@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as Promise from "bluebird";
+import Promise from "bluebird";
 
 /**
  * Simple Api helper class to send the ajax
@@ -99,6 +99,7 @@ export default class InteractService {
             },
             responseType: 'json',
           }).then((data) => {
+            console.log(JSON.stringify(data.data));
             resolve(data.data);
           }).catch((err) => {
             reject(err);
@@ -117,6 +118,9 @@ export default class InteractService {
           },
           responseType: 'json',
         }).then((data) => {
+
+          console.log(JSON.stringify(data.data));
+
           resolve(data.data);
         }).catch((err) => {
           reject(err);
