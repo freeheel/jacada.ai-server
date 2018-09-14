@@ -155,6 +155,24 @@ module.exports = function(FacebookWebHook) {
 
       let messageToSend = {};
 
+      // resetPath
+      if (message.text.toLowerCase() === 'reset') {
+        if (log.info) {
+          log.info('Going to reset client session.');
+        }
+
+        delete ConversationMap[externalId];
+        service.resetSession(externalId);
+
+        const resetResponse = {
+          interact: [
+            new TextModel('Reset done!'),
+          ],
+        };
+
+        return responder.respond(resetResponse, message, config.apiToken);
+      }
+
       const queuedFormData = ConversationMap[externalId].formDataQueue;
       if (queuedFormData) {
         if (log.info) {
@@ -191,25 +209,6 @@ module.exports = function(FacebookWebHook) {
           ];
         } else {
           messageToSend.text = message.text;
-
-          // resetPath
-
-          if (message.text.toLowerCase() === 'reset') {
-            if (log.info) {
-              log.info('Going to reset client session.');
-            }
-
-            delete ConversationMap[externalId];
-            service.resetSession(externalId);
-
-            const resetResponse = {
-              interact: [
-                new TextModel('Reset done!'),
-              ],
-            };
-
-            return responder.respond(resetResponse, message, config.apiToken);
-          }
         }
       }
 
