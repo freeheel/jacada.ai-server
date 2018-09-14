@@ -1,5 +1,5 @@
 'use strict';
-const TextModel = require('../util/nlp/model/TextModel');
+const TextModel = require('../util/nlp/model/TextModel').default;
 
 const TextInputModel = require('../util/nlp/model/TextInputModel');
 
@@ -16,18 +16,18 @@ let mapper = new InteractModelMapper();
 const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
 let responder = new FacebookResponder();
 
-module.exports = function (FacebookWebHook) {
-  FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
+module.exports = function(FacebookWebHook) {
+  FacebookWebHook.afterRemote('verify', function(context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.afterRemote('receiveMessage', function (context, remoteMethodOutput, next) {
+  FacebookWebHook.afterRemote('receiveMessage', function(context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
     context.res.end(context.result);
   });
 
-  FacebookWebHook.verify = function (mode, challenge, verifyToken, cb) {
+  FacebookWebHook.verify = function(mode, challenge, verifyToken, cb) {
     if (log.debug) {
       log.debug('go verification message from facebook server with mode: %s, challange: %s and verificationToken: %s', mode, challenge, verifyToken);
     }
@@ -72,7 +72,7 @@ module.exports = function (FacebookWebHook) {
   let InteractServiceMap = {};
   let ConversationMap = {};
 
-  FacebookWebHook.receiveMessage = function (payload, cb) {
+  FacebookWebHook.receiveMessage = function(payload, cb) {
     // ackn response to facebook
     cb(null, 'EVENT_RECEIVED');
 
@@ -134,7 +134,6 @@ module.exports = function (FacebookWebHook) {
             id: externalId + '_' + now,
             lastInteractionTime: now,
           };
-
         } else {
           if (log.info) {
             log.info('Last interaction happended before configured session timeout. Keeping id and update last interaction');
@@ -143,7 +142,6 @@ module.exports = function (FacebookWebHook) {
         }
 
         externalId = ConversationMap[externalId].id;
-
       } else {
         // we are just creating it, so we can use the message id as external identifier.
         ConversationMap[externalId] = {
@@ -152,7 +150,6 @@ module.exports = function (FacebookWebHook) {
         };
       }
 
-
       // Check if response should be treated like simple text or if we requested some input
       // if input, we need to send it as formData
 
@@ -160,7 +157,6 @@ module.exports = function (FacebookWebHook) {
 
       const queuedFormData = ConversationMap[externalId].formDataQueue;
       if (queuedFormData) {
-
         if (log.info) {
           log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
         }
@@ -179,12 +175,10 @@ module.exports = function (FacebookWebHook) {
               value: message.text,
             },
           ];
-
         });
 
         // remove queued form data.
         delete ConversationMap[externalId].formDataQueue;
-
       } else {
         // if quick reply we need to check if we have to continue the flow. Meaning we need to submit form data.
 
@@ -192,12 +186,11 @@ module.exports = function (FacebookWebHook) {
           messageToSend.formData = [
             {
               key: message.payload.sectionId,
-              value: message.payload.choice.parameterId
+              value: message.payload.choice.parameterId,
             },
           ];
         } else {
           messageToSend.text = message.text;
-
 
           // resetPath
 
@@ -211,17 +204,13 @@ module.exports = function (FacebookWebHook) {
 
             const resetResponse = {
               interact: [
-                new TextModel('Reset done!')
-              ]
+                new TextModel('Reset done!'),
+              ],
             };
 
-
             return responder.respond(resetResponse, message, config.apiToken);
-
           }
-
         }
-
       }
 
       service.sendMessage(externalId, messageToSend).then((response) => {
@@ -230,7 +219,6 @@ module.exports = function (FacebookWebHook) {
 
         // check if we have form data. If so, we store it
         mappedResponse.interact.map((item) => {
-
           if (item.type === TextInputModel.default.name) {
             if (!ConversationMap[externalId].formDataQueue) {
               ConversationMap[externalId].formDataQueue = [];
@@ -240,9 +228,7 @@ module.exports = function (FacebookWebHook) {
               key: item.parameterId,
               value: null,
             });
-
           }
-
         });
 
         // send via facebook responder
