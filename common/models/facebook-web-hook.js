@@ -238,7 +238,8 @@ module.exports = function (FacebookWebHook) {
         });
       });
     } catch (ex) {
-      log.error('Error on facebook message handler, %s', stringify(ex));
+      log.error('Error on facebook message handler,\n %s', stringify(ex));
+      log.error('Error on facebook message handler.\n Message:  %s \nStack:', ex.message, ex.stack);
     }
 
   };
