@@ -103,7 +103,7 @@ module.exports = function (FacebookWebHook) {
         }
 
         if (log.info) {
-          log.info('Found facebook config for receiver %s', message.receiverId);
+          log.info('Found facebook config for receiver %s and sender %s', message.receiverId, message.senderId);
         }
 
         // find spui

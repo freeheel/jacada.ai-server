@@ -11,7 +11,7 @@ const pLog = LOG.performanceLog();
  */
 
 export interface IHash {
-  [mapping: string]: string;
+  [mapping: string]: any;
 }
 
 export default class InteractService {
@@ -62,9 +62,9 @@ export default class InteractService {
 
         pLog.log('start conversation', 'it took ' + (Date.now() - pStart) + 'ms');
 
-        this.sessionMap[externalId] = startResponse.data.sessionId;
+        this.sessionMap[externalId] = startResponse.data;
 
-        resolve(startResponse.data.sessionId);
+        resolve(startResponse.data);
 
       }).catch((err) => {
         pLog.log('start conversation', 'error after ' + (Date.now() - pStart) + 'ms');
@@ -87,7 +87,6 @@ export default class InteractService {
           text: message.text,
           variables: {}
         };
-
 
       } else if (message.formData) {
         body = {
@@ -116,9 +115,13 @@ export default class InteractService {
         body.variables['spui'] = spui;
       }
 
+      if (this.sessionMap[externalId] && this.sessionMap[externalId]['instanceUniqueId']) {
+        body.variables['ParentInteractionId'] = this.sessionMap[externalId]['instanceUniqueId'];
+      }
 
       if (!this.sessionMap[externalId]) {
-        this.startConversation(externalId).then((conversationId) => {
+        this.startConversation(externalId).then((interactData) => {
+          const conversationId = interactData.sessionId;
           body.variables.clientConversationId = conversationId;
           axios.post(this.requestBaseUrl + this.tenantId + '/conversation/domains/' + this.domainName + '?sessionId=' + conversationId, body, {
             headers: {
@@ -142,7 +145,7 @@ export default class InteractService {
         });
 
       } else {
-        body.variables.clientConversationId = this.sessionMap[externalId];
+        body.variables.clientConversationId = this.sessionMap[externalId]['sessionId'];
 
         axios.post(this.requestBaseUrl + this.tenantId + '/conversation/domains/' + this.domainName + '?sessionId=' + body.variables.clientConversationId, body, {
           headers: {
