@@ -3,6 +3,7 @@ import Promise from "bluebird";
 
 // @ts-ignore
 import LOG = require("../../util/logging");
+
 const pLog = LOG.performanceLog();
 
 /**
@@ -74,7 +75,7 @@ export default class InteractService {
     });
   }
 
-  sendMessage(externalId: string, message: any): Promise<any> {
+  sendMessage(externalId: string, message: any, spui: string): Promise<any> {
 
     const pStart = Date.now();
 
@@ -109,6 +110,11 @@ export default class InteractService {
       this.additionalParams.map((param) => {
         body.variables[param.key] = param.value;
       });
+
+      // append spui if not null
+      if (spui) {
+        body.variables['spui'] = spui;
+      }
 
 
       if (!this.sessionMap[externalId]) {

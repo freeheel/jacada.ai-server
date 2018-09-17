@@ -33,6 +33,11 @@
     "sessionTimeout": {
       "type": "number",
       "default": 1800000
+    },
+    "spuiMapping": {
+      "type": [
+        "object"
+      ]
     }
   },
   "validations": [],

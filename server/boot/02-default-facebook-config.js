@@ -8,17 +8,21 @@ module.exports = function (app) {
 
   FacebookConfig.findOrCreate({
     where: {
-      description: 'DCM-Power'
-    }
+      description: 'DCM-Power',
+    },
   }, {
     description: 'DCM-Power',
     verificationToken: 'tomtom',
-    apiToken: 'EAAf9fG21ArcBAJmzIqUCZCb4d1tgCRMWmSpXoAjZBTxBn78aRZCadR7yaVnlYN3Pnj10rnoTSepZARkCMSKsBCMvlIeRSixYmqLlAc9QkFmKyjHTB0jglEF1uiIIXrVvyLHmX0v9UXGWMiXAngOq76ToP1ZAfGIHGzYfine3giwZDZD',
+    apiToken: 'EAAf9fG21ArcBAMO42diHHjR2I0mR9NegPEhK6qDli916xoFZAZAPVvUTKfKf7GIZBYBseA2l4ktgG6ukjp4qXaUwkc5TETLDPTzp6Dm81bZCoTkU2u0txFb9N8z11IUPvN8D0dgyTmyM8nN67zA0G8baS9UTV0pmhh4jOTBTGgZDZD',
     recipientId: '1138734942943439',
     tenantId: 'democenter_df',
     apiKey: '3126dbc6-049c-4b0b-ba74-6fefcf436ef6',
     environment: 'Dev',
-    domainName: 'UtilityInc'
+    domainName: 'UtilityInc',
+    spuiMapping: [{
+      spui: 'thomas',
+      senderId: '2656645241027953',
+    }],
   }, (err, instance, created) => {
     log.debug('Created instance %s', created);
   });

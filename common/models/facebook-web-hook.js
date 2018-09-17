@@ -106,6 +106,14 @@ module.exports = function (FacebookWebHook) {
           log.info('Found facebook config for receiver %s', message.receiverId);
         }
 
+        // find spui
+        let spui;
+        config.spuiMapping.map((item) => {
+          if (item.senderId === message.senderId) {
+            spui = item.spui;
+          }
+        });
+
         // check if we have a service already
         let service;
         if (InteractServiceMap[config.id]) {
@@ -215,7 +223,7 @@ module.exports = function (FacebookWebHook) {
           }
         }
 
-        service.sendMessage(externalId, messageToSend).then((response) => {
+        service.sendMessage(externalId, messageToSend, spui).then((response) => {
           // generate interact model
           const mappedResponse = mapper.translate(response);
 
