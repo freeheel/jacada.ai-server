@@ -39,6 +39,7 @@
     "winston-tcp-graylog": "^1.0.12"
   },
   "devDependencies": {
+    "@mean-expert/loopback-sdk-builder": "^2.3.1",
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.4",
     "@types/expect": "^1.20.3",
