@@ -1,8 +1,7 @@
 import TextModel from "./model/TextModel";
-import TextInputModel from "./model/TextInputModel";
 import ChoiceModel from "./model/ChoiceModel";
 import AttachmentModel from "./model/AttachmentModel";
-import TemplateModel from "./model/TemplateModel";
+import TextInputModel from "./model/TextInputModel";
 export default class InteractModelMapper {
 
   constructor() {
@@ -29,6 +28,19 @@ export default class InteractModelMapper {
 
           // TODO Ryan - add support for input and other rich outputs.
 
+          if (section.sectionChoices[0].textInput) {
+            transformedResponses.push(new TextInputModel(section));
+          }
+
+          /*
+
+          else if (section.sectionChoices[0].uploadImageList) {
+
+              transformedResponses.push(new ImageModel(section, interactResponse.elementResponse.page.pageNavigation));
+          } else {
+              transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
+          }
+          */
         }
         /*
         else if (section.sectionChoices.length > 1) {
@@ -40,7 +52,7 @@ export default class InteractModelMapper {
       } else if (section.sectionChoices && section.sectionHeader) {
 
           //If there is text to send with an attachment, we need to send in a template
-          //transformedResponses.push(new TextModel(section.sectionHeader.innerHtml));
+          transformedResponses.push(new TextModel(section.sectionHeader.innerHtml));
           let innerHTML :string = section.sectionHeader.innerHtml;
           let type:string;
           if(innerHTML.includes('<img')) {
