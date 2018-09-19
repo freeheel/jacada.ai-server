@@ -18,6 +18,9 @@ let responder = new FacebookResponder();
 
 const stringify = require('json-stringify-safe');
 
+require('../util/social/facebook/FacebookProfileHelper');
+
+
 module.exports = function (FacebookWebHook) {
   FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
@@ -148,7 +151,7 @@ module.exports = function (FacebookWebHook) {
             };
           } else {
             if (log.info) {
-              log.info('Last interaction happended before configured session timeout. Keeping id and update last interaction');
+              log.info('Last interaction happened before configured session timeout. Keeping id and update last interaction');
             }
             ConversationMap[externalId].lastInteractionTime = Date.now();
           }
