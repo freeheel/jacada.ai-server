@@ -99,7 +99,7 @@ module.exports = function (FacebookWebHook) {
         },
       }, (err, config) => {
         if (err || !config) {
-          return log.error('We don´t have a configuration for the receiverId %s', message.receiverId);
+          return log.error('We don´t have a configuration for the receiverId %s and sender %s', message.receiverId, message.senderId);
         }
 
         if (log.info) {
@@ -111,6 +111,7 @@ module.exports = function (FacebookWebHook) {
         config.spuiMapping.map((item) => {
           if (item.senderId === message.senderId) {
             spui = item.spui;
+            log.info('Found spui config for sender %s. Spui set to %s', message.senderId, spui);
           }
         });
 
