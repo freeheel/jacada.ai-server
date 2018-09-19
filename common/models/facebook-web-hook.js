@@ -189,7 +189,7 @@ module.exports = function (FacebookWebHook) {
         // config service path
         if (message.text && message.text.toLowerCase() === 'config') {
           if (log.info) {
-            log.info('Going to reset client session.');
+            log.info('Going to send client configuration.');
           }
 
           let text = 'senderId: ' + message.senderId;
@@ -203,9 +203,8 @@ module.exports = function (FacebookWebHook) {
             ],
           };
 
-          return responder.respond(resetResponse, message, config.apiToken);
+          return responder.respond(configResponse, message, config.apiToken);
         }
-
 
 
         const queuedFormData = ConversationMap[externalId].formDataQueue;
