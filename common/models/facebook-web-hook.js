@@ -184,6 +184,29 @@ module.exports = function (FacebookWebHook) {
           return responder.respond(resetResponse, message, config.apiToken);
         }
 
+
+        // config service path
+        if (message.text && message.text.toLowerCase() === 'config') {
+          if (log.info) {
+            log.info('Going to reset client session.');
+          }
+
+          let text = 'senderId: ' + message.senderId;
+          text += '\nreceiverId: ' + message.receiverId;
+          text += '\nconfig: ' + stringify(config);
+
+
+          const configResponse = {
+            interact: [
+              new TextModel(text),
+            ],
+          };
+
+          return responder.respond(resetResponse, message, config.apiToken);
+        }
+
+
+
         const queuedFormData = ConversationMap[externalId].formDataQueue;
         if (queuedFormData) {
           if (log.info) {
