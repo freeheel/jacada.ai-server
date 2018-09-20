@@ -1,4 +1,6 @@
 'use strict';
+const FacebookProfileHelper = require('../util/social/facebook/FacebookProfileHelper').default;
+
 const TextModel = require('../util/nlp/model/TextModel').default;
 
 const TextInputModel = require('../util/nlp/model/TextInputModel');
@@ -190,25 +192,75 @@ module.exports = function (FacebookWebHook) {
 
 
         // config service path
-        if (message.text && message.text.toLowerCase() === 'config') {
+        if (message.text && message.text.toLowerCase().startsWith('config')) {
+          const splits = message.text.toLowerCase().split(' ');
+
           if (log.info) {
-            log.info('Going to send client configuration.');
+            log.info('Going to send client configuration');
           }
 
-          let text = 'senderId: ' + message.senderId;
-          text += '\nreceiverId: ' + message.receiverId;
-          text += '\nconfig: ' + stringify(config);
+          if (splits.length > 1) {
+            log.info('Looking up profile for sender %s to add it to spui %s', message.senderId, splits[1]);
+            return new FacebookProfileHelper(config.apiToken).readProfile(message.senderId).then((profile) => {
 
+              let text = 'senderId: ' + message.senderId;
+              text += '\nreceiverId: ' + message.receiverId;
+              text += '\nfirstname: ' + profile.firstname
+              text += '\nlastname: ' + profile.lastname;
+              text += '\nid: ' + profile.id;
+              text += '\npicUrl: ' + profile.picUrl + '\n\n';
+              //text += '\nconfig: ' + stringify(config);
 
-          const configResponse = {
-            interact: [
-              new TextModel(text),
-            ],
-          };
+              const configResponse = {
+                interact: [
+                  new TextModel(text),
+                ],
+              };
 
-          return responder.respond(configResponse, message, config.apiToken);
+              if (!config.spuiMapping) {
+                config.spuiMapping = [];
+              } else {
+                // check if we already have soemthing for the spui
+                let spuiConf;
+                config.spuiMapping.map((conf) => {
+                  if (conf.spui === splits[1]) {
+                    spuiConf = conf;
+                  }
+                });
+
+                if (spuiConf) {
+                  spuiConf.senderId = message.senderId;
+                  spuiConf.fbProfile = profile;
+                } else {
+                  spuiConf = {
+                    spui: splits[1],
+                    senderId: message.senderId,
+                    fbProfile: profile
+                  }
+                  config.spuiMapping.push(spuiConf);
+                }
+
+              }
+
+              config.save((err,updatedConfig) => {
+                return responder.respond(configResponse, message, config.apiToken);
+              });
+
+            });
+          } else {
+            let text = 'senderId: ' + message.senderId;
+            text += '\nreceiverId: ' + message.receiverId;
+            text += '\nconfig: ' + stringify(config);
+
+            const configResponse = {
+              interact: [
+                new TextModel(text),
+              ],
+            };
+
+            return responder.respond(configResponse, message, config.apiToken);
+          }
         }
-
 
         const queuedFormData = ConversationMap[externalId].formDataQueue;
         if (queuedFormData) {

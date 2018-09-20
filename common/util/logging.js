@@ -144,8 +144,6 @@ function setLevelForLogger(newMinLevel, loggerName) {
 
   // set levels bellow to nothing but have function there.
 
-
-
   var logger = existingLoggers[loggerName];
 
   let emptyFunc = () => {
@@ -176,8 +174,6 @@ function setLevelForLogger(newMinLevel, loggerName) {
     case 'silly':
 
   }
-
-
 
   return existingLoggers[loggerName];
 }

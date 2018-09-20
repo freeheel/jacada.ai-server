@@ -1,3 +1,8 @@
+// @ts-ignore
+import LOG = require('../../../util/logging');
+const log = LOG.log('Facebook Profile Helper');
+
+
 export abstract class FacebookMessage {
 
   requestId: string;
@@ -56,6 +61,9 @@ export default class FacebookMessageParser {
 
   parseMessage(message: any): FacebookMessage[] {
 
+
+    log.debug('Parsing message with payload: %s', JSON.stringify(message));
+
     let res: FacebookMessage[] = [];
 
     message.entry.forEach((item: any) => {
@@ -82,6 +90,8 @@ export default class FacebookMessageParser {
       }
 
     });
+
+    log.debug('Returning parsing result %s', JSON.stringify(res));
 
     return res;
 
