@@ -112,6 +112,10 @@ module.exports = function (FacebookWebHook) {
         }
 
         // find spui
+        // this might not be enough, since the senderId may change.
+        // we can map the senderId to the fbUserId, but this does require an additional api call.
+        // so let's do it more smartly by checking if we find the senderId mapped already, if not get the userId and see if we have this one, if not
+        // create an warning log that for this user we need to call 'config spui'
         let spui;
         config.spuiMapping.map((item) => {
           if (item.senderId === message.senderId) {
@@ -240,7 +244,7 @@ module.exports = function (FacebookWebHook) {
 
               }
 
-              config.save((err,updatedConfig) => {
+              config.save((err, updatedConfig) => {
                 return responder.respond(configResponse, message, config.apiToken);
               });
 
@@ -299,27 +303,89 @@ module.exports = function (FacebookWebHook) {
           }
         }
 
-        service.sendMessage(externalId, messageToSend, spui).then((response) => {
-          // generate interact model
-          const mappedResponse = mapper.translate(response);
 
-          // check if we have form data. If so, we store it
-          mappedResponse.interact.map((item) => {
-            if (item.type === TextInputModel.default.name) {
-              if (!ConversationMap[externalId].formDataQueue) {
-                ConversationMap[externalId].formDataQueue = [];
+        if (!spui) {
+          log.info('Trying to find spui based on fb user id for sender %s', message.senderId);
+
+
+          new FacebookProfileHelper(config.apiToken).readProfile(message.senderId).then((fbProfile) => {
+
+            log.info('Received fb profile for senderId %s', message.senderId);
+
+
+            config.spuiMapping.map((spuiMapping) => {
+              if (spuiMapping.fbProfile && spuiMapping.fbProfile.id === fbProfile.id) {
+                log.info('Found spui mapping based on fbProfile config. Going to up date senderId from %s to %s', spuiMapping.senderId, message.senderId);
               }
+              spuiMapping.senderId = message.senderId;
+              spui = spuiMapping.spui;
+            });
 
-              ConversationMap[externalId].formDataQueue.push({
-                key: item.parameterId,
-                value: null,
+            if(spui) {
+              log.info('Going to save new config');
+
+              config.save((err, updatedConfig) => {
+
               });
+
             }
+
+          }).catch((err) => {
+
+            log.error('Error getting fb profile for senderId %s and apiToken %s', message.senderId, config.apiToken);
+
+          }).finally(() => {
+
+            service.sendMessage(externalId, messageToSend, spui).then((response) => {
+              // generate interact model
+              const mappedResponse = mapper.translate(response);
+
+              // check if we have form data. If so, we store it
+              mappedResponse.interact.map((item) => {
+                if (item.type === TextInputModel.default.name) {
+                  if (!ConversationMap[externalId].formDataQueue) {
+                    ConversationMap[externalId].formDataQueue = [];
+                  }
+
+                  ConversationMap[externalId].formDataQueue.push({
+                    key: item.parameterId,
+                    value: null,
+                  });
+                }
+              });
+
+              // send via facebook responder
+              responder.respond(mappedResponse, message, config.apiToken);
+            });
+          };
+
           });
 
-          // send via facebook responder
-          responder.respond(mappedResponse, message, config.apiToken);
-        });
+
+        } else {
+          service.sendMessage(externalId, messageToSend, spui).then((response) => {
+            // generate interact model
+            const mappedResponse = mapper.translate(response);
+
+            // check if we have form data. If so, we store it
+            mappedResponse.interact.map((item) => {
+              if (item.type === TextInputModel.default.name) {
+                if (!ConversationMap[externalId].formDataQueue) {
+                  ConversationMap[externalId].formDataQueue = [];
+                }
+
+                ConversationMap[externalId].formDataQueue.push({
+                  key: item.parameterId,
+                  value: null,
+                });
+              }
+            });
+
+            // send via facebook responder
+            responder.respond(mappedResponse, message, config.apiToken);
+          });
+        };
+
       });
     } catch (ex) {
       log.error('Error on facebook message handler,\n %s', stringify(ex));
