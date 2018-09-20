@@ -123,6 +123,8 @@ export default class InteractService {
         this.startConversation(externalId).then((interactData) => {
           const conversationId = interactData.sessionId;
           body.variables.clientConversationId = conversationId;
+          this.sessionMap[externalId]['instanceUniqueId'] = interactData.instanceUniqueId;
+          body.variables['ParentInteractionId'] = this.sessionMap[externalId]['instanceUniqueId'];
           axios.post(this.requestBaseUrl + this.tenantId + '/conversation/domains/' + this.domainName + '?sessionId=' + conversationId, body, {
             headers: {
               'Tenant-Id': this.tenantId,
