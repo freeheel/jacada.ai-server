@@ -303,15 +303,12 @@ module.exports = function (FacebookWebHook) {
           }
         }
 
-
         if (!spui) {
           log.info('Trying to find spui based on fb user id for sender %s', message.senderId);
-
 
           new FacebookProfileHelper(config.apiToken).readProfile(message.senderId).then((fbProfile) => {
 
             log.info('Received fb profile for senderId %s', message.senderId);
-
 
             config.spuiMapping.map((spuiMapping) => {
               if (spuiMapping.fbProfile && spuiMapping.fbProfile.id === fbProfile.id) {
@@ -321,7 +318,7 @@ module.exports = function (FacebookWebHook) {
               spui = spuiMapping.spui;
             });
 
-            if(spui) {
+            if (spui) {
               log.info('Going to save new config');
 
               config.save((err, updatedConfig) => {
@@ -357,10 +354,7 @@ module.exports = function (FacebookWebHook) {
               // send via facebook responder
               responder.respond(mappedResponse, message, config.apiToken);
             });
-          };
-
           });
-
 
         } else {
           service.sendMessage(externalId, messageToSend, spui).then((response) => {
@@ -384,7 +378,8 @@ module.exports = function (FacebookWebHook) {
             // send via facebook responder
             responder.respond(mappedResponse, message, config.apiToken);
           });
-        };
+        }
+        ;
 
       });
     } catch (ex) {
