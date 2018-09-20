@@ -190,7 +190,6 @@ module.exports = function (FacebookWebHook) {
           return responder.respond(resetResponse, message, config.apiToken);
         }
 
-
         // config service path
         if (message.text && message.text.toLowerCase().startsWith('config')) {
           const splits = message.text.toLowerCase().split(' ');
@@ -209,7 +208,6 @@ module.exports = function (FacebookWebHook) {
               text += '\nlastname: ' + profile.lastname;
               text += '\nid: ' + profile.id;
               text += '\npicUrl: ' + profile.picUrl + '\n\n';
-              //text += '\nconfig: ' + stringify(config);
 
               const configResponse = {
                 interact: [
