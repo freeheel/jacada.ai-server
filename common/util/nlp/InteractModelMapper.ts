@@ -14,8 +14,9 @@ export default class InteractModelMapper {
     const interactResponse = response.interactResponse;
 
     if (!interactResponse.elementResponse) {
-      // This is an input. which we don´t support yet.
-      throw new Error('Input is not supported yet');
+
+      return transformedResponses;
+
     }
     const sections = interactResponse.elementResponse.page.pageContent.contentSections;
 
@@ -94,17 +95,17 @@ export default class InteractModelMapper {
     let aiVendor = 'NaN';
 
     // check which vendor
-    if (!botResponse.nlpEngineResponse) {
+    if (!response.nlpEngineResponse) {
       aiVendor = 'NaN';
-    } else if (botResponse.nlpEngineResponse.nlpEngineType === 'DIALOGFLOW') {
+    } else if (response.nlpEngineResponse.nlpEngineType === 'DIALOGFLOW') {
       aiVendor = 'dialogflow';
-    } else if (botResponse.nlpEngineResponse.nlpEngineType === 'WATSON') {
+    } else if (response.nlpEngineResponse.nlpEngineType === 'WATSON') {
       aiVendor = 'watson';
     }
 
     if (aiVendor === 'dialogflow') {
 
-      let textRespones = botResponse.nlpEngineResponse.vendorResponse.result.fulfillment.messages.map((message: any) => {
+      let textRespones = response.nlpEngineResponse.vendorResponse.result.fulfillment.messages.map((message: any) => {
         return message.speech;
       });
 
@@ -113,7 +114,7 @@ export default class InteractModelMapper {
       });
 
     } else if (aiVendor === 'watson') {
-      let textRespones = botResponse.nlpEngineResponse.vendorResponse.output.text;
+      let textRespones = response.nlpEngineResponse.vendorResponse.output.text;
 
       transformedResponses = textRespones.map((text: any) => {
         return new TextModel(text);
