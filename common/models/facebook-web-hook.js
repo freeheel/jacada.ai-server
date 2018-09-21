@@ -264,7 +264,11 @@ module.exports = function (FacebookWebHook) {
           }
         }
 
-        const queuedFormData = ConversationMap[externalId].formDataQueue;
+        let queuedFormData;
+        if (ConversationMap[externalId] && ConversationMap[externalId].formDataQueue) {
+          queuedFormData = ConversationMap[externalId].formDataQueue;
+        }
+
         if (queuedFormData) {
           if (log.info) {
             log.info('Received message as a response %s to queued form data %s.', message.text, JSON.stringify(queuedFormData));
