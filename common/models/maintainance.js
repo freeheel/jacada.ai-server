@@ -34,7 +34,7 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('changeLoggingLevel', {
     accepts: [
-      {arg: 'apiPassword', type: 'string'},
+      /*{arg: 'apiPassword', type: 'string'},*/
       {arg: 'newLevel', type: 'string'},
     ],
     returns: {
@@ -74,7 +74,7 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('getLoggers', {
     accepts: [
-      {arg: 'apiPassword', type: 'string'},
+      /*{arg: 'apiPassword', type: 'string'},*/
     ],
     returns: {
       arg: 'result', type: 'object', http: {source: 'body'}, root: true,
@@ -107,7 +107,7 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('setLoglevel', {
     accepts: [
-      {arg: 'apiPassword', type: 'string'},
+      /*{arg: 'apiPassword', type: 'string'},*/
       {arg: 'loggerName', type: 'string'},
       {arg: 'newlevel', type: 'string'},
     ],
