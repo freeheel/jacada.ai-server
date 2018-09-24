@@ -6,7 +6,7 @@ const stringify = require('json-stringify-safe');
 module.exports = function(Maintainance) {
 
   Maintainance.changeLoggingLevel = function(apiPassword, newLevel, cb) {
-
+/*
     if (apiPassword != 'Jacada2017!"§') {
       let defaultError = new Error('login failed');
       defaultError.statusCode = 401;
@@ -15,7 +15,7 @@ module.exports = function(Maintainance) {
       return cb(defaultError);
 
     }
-
+*/
     if (log[newLevel]) {
       log[newLevel]('Changing logging level for all loggers to %s', newLevel);
     } else {
@@ -45,6 +45,7 @@ module.exports = function(Maintainance) {
 
   Maintainance.getLoggers = function(apiPassword, cb) {
 
+    /*
     if (apiPassword != 'Jacada2017!"§') {
       let defaultError = new Error('login failed');
       defaultError.statusCode = 401;
@@ -53,6 +54,7 @@ module.exports = function(Maintainance) {
       return cb(defaultError);
 
     }
+    */
 
     if (log.info) {
       log.info('get Loggers');
@@ -82,6 +84,7 @@ module.exports = function(Maintainance) {
 
   Maintainance.setLoglevel = function(apiPassword, loggerName, newlevel, cb) {
 
+    /*
     if (apiPassword != 'Jacada2017!"§') {
       let defaultError = new Error('login failed');
       defaultError.statusCode = 401;
@@ -90,6 +93,7 @@ module.exports = function(Maintainance) {
       return cb(defaultError);
 
     }
+    */
 
     if (log.info) {
       log.info('setLoglevel for logger %s with new Level %s', loggerName, newlevel);
