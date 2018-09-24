@@ -5,17 +5,8 @@ const stringify = require('json-stringify-safe');
 
 module.exports = function(Maintainance) {
 
-  Maintainance.changeLoggingLevel = function(apiPassword, newLevel, cb) {
-/*
-    if (apiPassword != 'Jacada2017!"§') {
-      let defaultError = new Error('login failed');
-      defaultError.statusCode = 401;
-      defaultError.code = 'LOGIN_FAILED';
+  Maintainance.changeLoggingLevel = function(newLevel, cb) {
 
-      return cb(defaultError);
-
-    }
-*/
     if (log[newLevel]) {
       log[newLevel]('Changing logging level for all loggers to %s', newLevel);
     } else {
@@ -34,7 +25,6 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('changeLoggingLevel', {
     accepts: [
-      /*{arg: 'apiPassword', type: 'string'},*/
       {arg: 'newLevel', type: 'string'},
     ],
     returns: {
@@ -43,18 +33,7 @@ module.exports = function(Maintainance) {
     http: {path: '/changeLoggingLevel', verb: 'get'},
   });
 
-  Maintainance.getLoggers = function(apiPassword, cb) {
-
-    /*
-    if (apiPassword != 'Jacada2017!"§') {
-      let defaultError = new Error('login failed');
-      defaultError.statusCode = 401;
-      defaultError.code = 'LOGIN_FAILED';
-
-      return cb(defaultError);
-
-    }
-    */
+  Maintainance.getLoggers = function(cb) {
 
     if (log.info) {
       log.info('get Loggers');
@@ -74,7 +53,6 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('getLoggers', {
     accepts: [
-      /*{arg: 'apiPassword', type: 'string'},*/
     ],
     returns: {
       arg: 'result', type: 'object', http: {source: 'body'}, root: true,
@@ -82,18 +60,8 @@ module.exports = function(Maintainance) {
     http: {path: '/getLoggers', verb: 'get'},
   });
 
-  Maintainance.setLoglevel = function(apiPassword, loggerName, newlevel, cb) {
+  Maintainance.setLoglevel = function(loggerName, newlevel, cb) {
 
-    /*
-    if (apiPassword != 'Jacada2017!"§') {
-      let defaultError = new Error('login failed');
-      defaultError.statusCode = 401;
-      defaultError.code = 'LOGIN_FAILED';
-
-      return cb(defaultError);
-
-    }
-    */
 
     if (log.info) {
       log.info('setLoglevel for logger %s with new Level %s', loggerName, newlevel);
@@ -107,7 +75,6 @@ module.exports = function(Maintainance) {
 
   Maintainance.remoteMethod('setLoglevel', {
     accepts: [
-      /*{arg: 'apiPassword', type: 'string'},*/
       {arg: 'loggerName', type: 'string'},
       {arg: 'newlevel', type: 'string'},
     ],
