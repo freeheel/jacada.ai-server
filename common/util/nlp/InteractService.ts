@@ -172,6 +172,8 @@ export default class InteractService {
 
   }
 
+
+
   resetSession(externalId: string): void {
     delete this.sessionMap[externalId];
   }

@@ -22,7 +22,6 @@ const stringify = require('json-stringify-safe');
 
 require('../util/social/facebook/FacebookProfileHelper');
 
-
 module.exports = function (FacebookWebHook) {
   FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
     context.res.setHeader('Content-Type', 'text/plain');
@@ -222,7 +221,7 @@ module.exports = function (FacebookWebHook) {
               if (!config.spuiMapping) {
                 config.spuiMapping = [];
               } else {
-                // check if we already have soemthing for the spui
+                // check if we already have something for the spui
                 let spuiConf;
                 config.spuiMapping.map((conf) => {
                   if (conf.spui === splits[1]) {
@@ -405,4 +404,6 @@ module.exports = function (FacebookWebHook) {
     returns: {type: 'string', root: true},
 
   });
+
+
 };

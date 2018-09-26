@@ -28,7 +28,7 @@
     "loopback-ssl": "^1.0.3",
     "node-cache": "^4.1.1",
     "node-html-parser": "^1.1.10",
-    "pubnub": "^4.16.1",
+    "pubnub": "^4.21.5",
     "redis": "^2.8.0",
     "serve-favicon": "^2.0.1",
     "socket.io": "^2.0.4",

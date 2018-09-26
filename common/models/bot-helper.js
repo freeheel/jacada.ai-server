@@ -9,9 +9,9 @@ let myPubnub = new PubNub({
   ssl: true,
 });
 
-module.exports = function(BotHelper) {
+module.exports = function (BotHelper) {
 
-  BotHelper.requestBotAssistant = function(spui, conversationId, reason, reasonDetails, script, cb) {
+  BotHelper.requestBotAssistant = function (spui, conversationId, reason, reasonDetails, script, cb) {
 
     myPubnub.publish({
       message: {
@@ -22,7 +22,7 @@ module.exports = function(BotHelper) {
         script: script,
       },
       channel: spui,
-    }, function(status, response) {
+    }, function (status, response) {
       if (status.error) {
         log.error('Error sending chatbot assistant request', status);
         cb(status.error);
@@ -50,7 +50,7 @@ module.exports = function(BotHelper) {
     http: {path: '/requestBotAssistant', verb: 'get'},
   });
 
-  BotHelper.sendBotCommand = function(botCommand, cb) {
+  BotHelper.sendBotCommand = function (botCommand, cb) {
 
     myPubnub.publish({
         channel: botCommand.conversationId,
@@ -58,7 +58,7 @@ module.exports = function(BotHelper) {
           command: botCommand.command,
           payload: botCommand.payload,
         },
-      }, function(status, response) {
+      }, function (status, response) {
         if (status.error) {
           log.error('Error sending sendBotCommand', status);
           cb(status.error);
@@ -80,6 +80,43 @@ module.exports = function(BotHelper) {
       arg: 'result', type: 'object', http: {source: 'body'}, root: true,
     },
     http: {path: '/sendBotCommand', verb: 'post'},
+  });
+
+  BotHelper.sendChatMessage = function (from, sendTo, message, cb) {
+
+    myPubnub.publish({
+      channel: sendTo,
+      message: {
+        from: from,
+        text: message,
+      },
+    });
+
+    cb(null, sendTo);
+
+  };
+
+  BotHelper.remoteMethod('sendChatMessage', {
+    accepts: [
+      {
+        arg: 'from',
+        type: 'string',
+      },{
+        arg: 'sendTo',
+        type: 'string',
+      }, {
+        arg: 'message',
+        type: 'string',
+      },
+    ],
+    returns: {
+      arg: 'result',
+      type: 'string',
+    },
+    http: {
+      path: '/sendChatMessage',
+      verb: 'post',
+    },
   });
 
 };
