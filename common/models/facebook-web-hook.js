@@ -18,9 +18,12 @@ let mapper = new InteractModelMapper();
 const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
 let responder = new FacebookResponder();
 
+const _ = require('underscore');
+
 const stringify = require('json-stringify-safe');
 
 require('../util/social/facebook/FacebookProfileHelper');
+
 
 module.exports = function (FacebookWebHook) {
   FacebookWebHook.afterRemote('verify', function (context, remoteMethodOutput, next) {
@@ -83,6 +86,10 @@ module.exports = function (FacebookWebHook) {
     cb(null, 'EVENT_RECEIVED');
 
     try {
+
+
+      const BotHelper = require('../../server/server').models.BotHelper;
+
       // parse message from facebook
       let messages = parser.parseMessage(payload);
 
@@ -168,6 +175,17 @@ module.exports = function (FacebookWebHook) {
             id: externalId,
             lastInteractionTime: Date.now(),
           };
+        }
+
+        // check if we have agent chat enabled already
+
+        if (ConversationMap[externalId] && ConversationMap[externalId].enableChat) {
+          log.info('Agent chat is enabled. We are not going to send the message to interact instead we will push it straight to the client');
+
+          BotHelper.sendChatMessage('customer', ConversationMap[externalId].instanceUniqueId, message.text, function (err, success) {
+
+          });
+          return;
         }
 
         // Check if response should be treated like simple text or if we requested some input
@@ -336,9 +354,11 @@ module.exports = function (FacebookWebHook) {
 
           }).finally(() => {
 
-            service.sendMessage(externalId, messageToSend, spui).then((response) => {
+            service.sendMessage(externalId, messageToSend, spui).then((data) => {
               // generate interact model
-              const mappedResponse = mapper.translate(response);
+              ConversationMap[externalId].instanceUniqueId = data.instanceUniqueId;
+
+              const mappedResponse = mapper.translate(data.response);
 
               // check if we have form data. If so, we store it
               mappedResponse.interact.map((item) => {
@@ -360,9 +380,12 @@ module.exports = function (FacebookWebHook) {
           });
 
         } else {
-          service.sendMessage(externalId, messageToSend, spui).then((response) => {
+          service.sendMessage(externalId, messageToSend, spui).then((data) => {
             // generate interact model
-            const mappedResponse = mapper.translate(response);
+
+            ConversationMap[externalId].instanceUniqueId = data.instanceUniqueId;
+
+            const mappedResponse = mapper.translate(data.response);
 
             // check if we have form data. If so, we store it
             mappedResponse.interact.map((item) => {
@@ -383,13 +406,11 @@ module.exports = function (FacebookWebHook) {
           });
         }
         ;
-
       });
     } catch (ex) {
       log.error('Error on facebook message handler,\n %s', stringify(ex));
       log.error('Error on facebook message handler.\n Message:  %s \nStack:', ex.message, ex.stack);
     }
-
   };
 
   FacebookWebHook.remoteMethod('receiveMessage', {
@@ -404,6 +425,32 @@ module.exports = function (FacebookWebHook) {
     returns: {type: 'string', root: true},
 
   });
+
+  FacebookWebHook.enableAgentChat = function (uniqueId) {
+
+    // find Conversation
+    _.each(ConversationMap, (value, key) => {
+      if (value.instanceUniqueId === uniqueId) {
+        value.enableChat = true;
+        return true;
+      }
+    });
+
+    return false;
+
+  };
+
+  FacebookWebHook.disabelAgentChat = function (uniqueId) {
+
+    _.each(ConversationMap, (value, key) => {
+      if (value.instanceUniqueId === uniqueId) {
+        value.enableChat = false;
+        return true;
+      }
+    });
+
+    return false;
+  };
 
 
 };

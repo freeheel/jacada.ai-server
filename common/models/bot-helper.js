@@ -92,6 +92,16 @@ module.exports = function (BotHelper) {
       },
     });
 
+    // set facebook listener to get messages.
+
+    const FacebookWebHook = require('../../server/server').models.FacebookWebHook;
+
+    FacebookWebHook.enableAgentChat(sendTo);
+
+    // TODO
+    // send message to facebook.
+
+
     cb(null, sendTo);
 
   };

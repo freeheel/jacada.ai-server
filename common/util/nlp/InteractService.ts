@@ -137,7 +137,10 @@ export default class InteractService {
 
             pLog.log('start conversation and send message', 'it took ' + (Date.now() - pStart) + 'ms');
 
-            resolve(data.data);
+            resolve({
+              response: data.data,
+              instanceUniqueId: this.sessionMap[externalId]['instanceUniqueId']
+            });
           }).catch((err) => {
 
             pLog.log('start conversation and send message', 'error after ' + (Date.now() - pStart) + 'ms');
@@ -161,7 +164,10 @@ export default class InteractService {
 
           pLog.log('send message', 'it took ' + (Date.now() - pStart) + 'ms');
 
-          resolve(data.data);
+          resolve({
+            response: data.data,
+            instanceUniqueId: this.sessionMap[externalId]['instanceUniqueId']
+          });
         }).catch((err) => {
           pLog.log('send message', 'error after ' + (Date.now() - pStart) + 'ms');
           reject(err);
@@ -171,8 +177,6 @@ export default class InteractService {
     }));
 
   }
-
-
 
   resetSession(externalId: string): void {
     delete this.sessionMap[externalId];
