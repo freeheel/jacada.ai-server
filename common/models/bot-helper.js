@@ -3,11 +3,15 @@
 const PubNub = require('pubnub');
 const log = require('../util/logging').log('bot-helper');
 
+const FacebookResponder = require('../util/social/facebook/FacebookResponder').default;
+let responder = new FacebookResponder();
+
 let myPubnub = new PubNub({
   publishKey: 'pub-c-9ef8635f-8eae-4a07-adb8-515edd926442',
   subscribeKey: 'sub-c-2ebd149c-7e1c-11e5-9e96-02ee2ddab7fe',
   ssl: true,
 });
+
 
 module.exports = function (BotHelper) {
 
@@ -98,9 +102,10 @@ module.exports = function (BotHelper) {
 
     FacebookWebHook.enableAgentChat(sendTo);
 
-    // TODO
-    // send message to facebook.
-
+    if(from === 'agent') {
+      const config = FacebookWebHook.getConfigByUniqueId(sendTo);
+      responder.textRespond(message, config.recipientId, config.apiToken);
+    }
 
     cb(null, sendTo);
 
@@ -111,7 +116,7 @@ module.exports = function (BotHelper) {
       {
         arg: 'from',
         type: 'string',
-      },{
+      }, {
         arg: 'sendTo',
         type: 'string',
       }, {

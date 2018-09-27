@@ -16,6 +16,8 @@ const log = LOG.log('Facebook Responder');
 
 export default class FacebookResponder {
 
+  private _messageQueue: any[] = [];
+
   constructor() {
 
   }
@@ -164,7 +166,21 @@ export default class FacebookResponder {
 
   }
 
-  private _messageQueue: any[] = [];
+  textRespond(text: string, recipientId: string, apiToken: string) {
+
+    let payload: any = {
+      recipient: {
+        id: recipientId,
+      },
+      message: {
+        text: text
+      }
+    };
+
+    this._addMessageToQueue(payload, apiToken);
+    this._sendMessage();
+
+  }
 
   private _addMessageToQueue(payload: any, apiToken: string): void {
     this._messageQueue.push({
@@ -172,7 +188,6 @@ export default class FacebookResponder {
       apiToken: apiToken,
     });
   }
-
 
   private _sendMessage(): void {
 
@@ -200,7 +215,6 @@ export default class FacebookResponder {
 
   }
 
-
   private extractText(html: string): string {
 
     const parsed = parse(html);
@@ -215,18 +229,3 @@ export default class FacebookResponder {
 
 
 }
-
-
-/*
-
-var sendMessageToFB = (userId: string, message: any, userName: string) => {
-  messageData.recipient.id = userId;
-  messageData.message.text = message;
-  request({
-    uri: "https://graph.facebook.com/v2.6/me/messages?access_token=EAAFXo9PhQ48BAHBpweZCQwD5a7CnZCLGrNqufVJwUOMtB11xyw8u5Ejs4ZBHG9UnwRr9uEtSsTZCTsZBD9KYO6v5FD8G1xjMPTbNakw2EjRl030eDdWQiW2PXBZBpAT97Ycgl9uttTqpHIyjqkFCjD9wZCXiMUIPZBtQd83ZCgZAiUEuNDTvsV2XPkYmHF5ugp4ZCsZD",
-    method: "POST",
-    json: messageData
-  });
-}
-
- */

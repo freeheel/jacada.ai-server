@@ -123,12 +123,15 @@ module.exports = function (FacebookWebHook) {
         // so let's do it more smartly by checking if we find the senderId mapped already, if not get the userId and see if we have this one, if not
         // create an warning log that for this user we need to call 'config spui'
         let spui;
-        config.spuiMapping.map((item) => {
-          if (item.senderId === message.senderId) {
-            spui = item.spui;
-            log.info('Found spui config for sender %s. Spui set to %s', message.senderId, spui);
-          }
-        });
+        if (config.spuiMapping) {
+          config.spuiMapping.map((item) => {
+            if (item.senderId === message.senderId) {
+              spui = item.spui;
+              log.info('Found spui config for sender %s. Spui set to %s', message.senderId, spui);
+            }
+          });
+        }
+
 
         // check if we have a service already
         let service;
@@ -176,6 +179,9 @@ module.exports = function (FacebookWebHook) {
             lastInteractionTime: Date.now(),
           };
         }
+
+        ConversationMap[externalId].apiToken = config.apiToken;
+        ConversationMap[externalId].recipientId = message.senderId;
 
         // check if we have agent chat enabled already
 
@@ -378,7 +384,6 @@ module.exports = function (FacebookWebHook) {
               responder.respond(mappedResponse, message, config.apiToken);
             });
           });
-
         } else {
           service.sendMessage(externalId, messageToSend, spui).then((data) => {
             // generate interact model
@@ -405,7 +410,6 @@ module.exports = function (FacebookWebHook) {
             responder.respond(mappedResponse, message, config.apiToken);
           });
         }
-        ;
       });
     } catch (ex) {
       log.error('Error on facebook message handler,\n %s', stringify(ex));
@@ -452,5 +456,15 @@ module.exports = function (FacebookWebHook) {
     return false;
   };
 
+  FacebookWebHook.getConfigByUniqueId = function (uniqueId) {
+    let config;
+    _.each(ConversationMap, (value, key) => {
+      if (value.instanceUniqueId === uniqueId) {
+        config = value;
+      }
+    });
+
+    return config;
+  }
 
 };

@@ -17,6 +17,10 @@
     },
     "scriptUrl": {
       "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "default": "web"
     }
   },
   "validations": [],
