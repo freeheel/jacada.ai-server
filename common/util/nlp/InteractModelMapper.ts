@@ -108,7 +108,7 @@ export default class InteractModelMapper {
       let textRespones = response.nlpEngineResponse.vendorResponse.queryResult.fulfillmentMessages.map((message: any) => {
         let text = '';
 
-        message.text.text.map((textMessage) => {
+        message.text.text.map((textMessage: any) => {
          text += textMessage + ' ';
         });
 
