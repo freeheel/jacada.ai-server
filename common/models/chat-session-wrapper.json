@@ -3,12 +3,12 @@
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "validateUpsert": false
   },
   "properties": {
     "sessionId": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "apiKey": {
       "type": "string",
