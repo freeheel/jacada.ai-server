@@ -28,9 +28,9 @@ class InteractModelMapper {
                         transformedResponses.push(new TextInputModel_1.default(section));
                     }
                     /*
-          
+
                     else if (section.sectionChoices[0].uploadImageList) {
-          
+
                         transformedResponses.push(new ImageModel(section, interactResponse.elementResponse.page.pageNavigation));
                     } else {
                         transformedResponses.push(new ChoiceModel(section, interactResponse.elementResponse.page.pageNavigation));
@@ -88,8 +88,13 @@ class InteractModelMapper {
             aiVendor = 'watson';
         }
         if (aiVendor === 'dialogflow') {
-            let textRespones = response.nlpEngineResponse.vendorResponse.result.fulfillment.messages.map((message) => {
-                return message.speech;
+            let textRespones = response.nlpEngineResponse.vendorResponse.queryResult.fulfillmentMessages.map((message) => {
+              let text = '';
+              message.text.text.map((textMessage) => {
+                  text += textMessage + ' ';
+              });
+
+              return text;
             });
             transformedResponses = textRespones.map((text) => {
                 return new TextModel_1.default(text);
