@@ -3,25 +3,12 @@
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
-    "validateUpsert": false
+    "validateUpsert": true
   },
   "properties": {
     "sessionId": {
       "type": "string",
-      "required": false
-    },
-    "apiKey": {
-      "type": "string",
-      "required": false
-    },
-    "interactions": {
-      "type": "object"
-    },
-    "interactionStack": {
-      "type": "object"
-    },
-    "asyncTasks": {
-      "type": "object"
+      "required": true
     }
   },
   "validations": [],
