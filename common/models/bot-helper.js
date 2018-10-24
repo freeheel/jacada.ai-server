@@ -12,7 +12,6 @@ let myPubnub = new PubNub({
   ssl: true,
 });
 
-
 module.exports = function (BotHelper) {
 
   BotHelper.requestBotAssistant = function (spui, conversationId, reason, reasonDetails, script, cb) {
