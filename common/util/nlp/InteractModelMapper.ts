@@ -105,8 +105,14 @@ export default class InteractModelMapper {
 
     if (aiVendor === 'dialogflow') {
 
-      let textRespones = response.nlpEngineResponse.vendorResponse.result.fulfillment.messages.map((message: any) => {
-        return message.speech;
+      let textRespones = response.nlpEngineResponse.vendorResponse.queryResult.fulfillmentMessages.map((message: any) => {
+        let text = '';
+
+        message.text.text.map((textMessage) => {
+         text += textMessage + ' ';
+        });
+
+        return text;
       });
 
       transformedResponses = textRespones.map((text: any) => {
