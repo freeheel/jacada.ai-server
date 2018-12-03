@@ -88,10 +88,14 @@ module.exports = function (FacebookWebHook) {
     try {
 
 
+      log.info('receiveMessage with payload %s', stringify(payload));
+
       const BotHelper = require('../../server/server').models.BotHelper;
 
       // parse message from facebook
       let messages = parser.parseMessage(payload);
+
+      log.info('Parsing result: %s', messages);
 
       // send messages to interact.
       // for now we only will support the first text message!
@@ -196,6 +200,8 @@ module.exports = function (FacebookWebHook) {
 
         // Check if response should be treated like simple text or if we requested some input
         // if input, we need to send it as formData
+
+
 
         let messageToSend = {};
 
