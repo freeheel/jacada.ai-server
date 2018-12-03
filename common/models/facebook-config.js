@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function(Facebookconfig) {
+module.exports = function(FacebookConfig) {
 
 };
