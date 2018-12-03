@@ -15,7 +15,7 @@ module.exports = function (ContactUsHelper) {
 
   ContactUsHelper.transferToChat = function (contactUsCommand, cb) {
 
-    log.info('transferToChat with command %s', contactUsCommand);
+    log.info('transferToChat with command %s', stringify(contactUsCommand));
 
     myPubnub.publish({
       message: {
