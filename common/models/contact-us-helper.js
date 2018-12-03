@@ -3,6 +3,8 @@
 const PubNub = require('pubnub');
 const log = require('../util/logging').log('bot-helper');
 
+const stringify = require('json-stringify-safe');
+
 let myPubnub = new PubNub({
   publishKey: 'pub-c-9ef8635f-8eae-4a07-adb8-515edd926442',
   subscribeKey: 'sub-c-2ebd149c-7e1c-11e5-9e96-02ee2ddab7fe',
@@ -13,6 +15,8 @@ module.exports = function (ContactUsHelper) {
 
   ContactUsHelper.transferToChat = function (contactUsCommand, cb) {
 
+    log.info('transferToChat with command %s', contactUsCommand);
+
     myPubnub.publish({
       message: {
         action: 'chatAssistant',
@@ -21,7 +25,7 @@ module.exports = function (ContactUsHelper) {
       channel: contactUsCommand.spui,
     }, function (status, response) {
       if (status.error) {
-        log.error('Error sending transferToChat request', status);
+        log.error('Error sending transferToChat \nstatus: %s \nresponse:  %s', stringify(status), stringify(response));
         cb(status.error);
       } else {
         log.debug('transferToChat send');
