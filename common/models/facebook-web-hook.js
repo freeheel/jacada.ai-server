@@ -187,23 +187,8 @@ module.exports = function (FacebookWebHook) {
         ConversationMap[externalId].apiToken = config.apiToken;
         ConversationMap[externalId].recipientId = message.senderId;
 
-        // check if we have agent chat enabled already
-
-        if (ConversationMap[externalId] && ConversationMap[externalId].enableChat) {
-          log.info('Agent chat is enabled. We are not going to send the message to interact instead we will push it straight to the client');
-
-          BotHelper.sendChatMessage('customer', ConversationMap[externalId].instanceUniqueId, message.text, function (err, success) {
-
-          });
-          return;
-        }
-
-        // Check if response should be treated like simple text or if we requested some input
-        // if input, we need to send it as formData
-
-
-
         let messageToSend = {};
+
 
         // resetPath
         if (message.text && message.text.toLowerCase() === 'reset') {
@@ -292,6 +277,30 @@ module.exports = function (FacebookWebHook) {
             return responder.respond(configResponse, message, config.apiToken);
           }
         }
+
+
+
+
+        // check if we have agent chat enabled already
+
+        if (ConversationMap[externalId] && ConversationMap[externalId].enableChat) {
+          log.info('Agent chat is enabled. We are not going to send the message to interact instead we will push it straight to the client');
+
+          BotHelper.sendChatMessage('customer', ConversationMap[externalId].instanceUniqueId, message.text, function (err, success) {
+
+          });
+          return;
+        }
+
+        // Check if response should be treated like simple text or if we requested some input
+        // if input, we need to send it as formData
+
+
+
+
+
+
+
 
         let queuedFormData;
         if (ConversationMap[externalId] && ConversationMap[externalId].formDataQueue) {
