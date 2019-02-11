@@ -118,5 +118,9 @@
   "FacebookConfig": {
     "dataSource": "db",
     "public": true
+  },
+  "WatsonDiscovery": {
+    "dataSource": null,
+    "public": true
   }
 }

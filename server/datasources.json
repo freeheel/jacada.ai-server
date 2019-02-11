@@ -5,7 +5,7 @@
     "database": "ai_server",
     "name": "db",
     "connector": "mongodb",
-    "useNewUrlParser":"true"
+    "useNewUrlParser": "true"
   },
   "transient": {
     "name": "transient",
