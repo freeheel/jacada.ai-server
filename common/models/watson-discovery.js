@@ -5,19 +5,19 @@ var DiscoveryV1 = require('watson-developer-cloud/discovery/v1');
 
 module.exports = function (WatsonDiscovery) {
 
-  var discovery = new DiscoveryV1({
-    version: '2018-12-03',
-    username: '13b95494-0632-490d-aa32-1230ad5376e6',
-    password: 'l5qrTVbzgcI0',
-    url: 'https://gateway.watsonplatform.net/discovery/api'
-  });
 
+  WatsonDiscovery.query = function (environmentId, collectionId, url, username, password, queryText, cb) {
 
-  WatsonDiscovery.query = function (queryText, cb) {
+    var discovery = new DiscoveryV1({
+      version: '2018-12-03',
+      username: username,
+      password: password,
+      url: url
+    });
 
     return discovery.query({
-      environment_id: '8224988f-044f-4817-944f-ca62c3c311cd',
-      collection_id: 'fe9ba82e-a30d-4f7e-8706-76235c2f07e5',
+      environment_id: environmentId,
+      collection_id: collectionId,
       query: queryText,
     }, cb);
 
@@ -26,6 +26,11 @@ module.exports = function (WatsonDiscovery) {
 
   WatsonDiscovery.remoteMethod('query', {
     accepts: [
+      {arg: 'environmentId', type: 'string'},
+      {arg: 'collectionId', type: 'string'},
+      {arg: 'url', type: 'string'},
+      {arg: 'username', type: 'string'},
+      {arg: 'password', type: 'string'},
       {arg: 'queryText', type: 'string'},
     ],
     returns: {
