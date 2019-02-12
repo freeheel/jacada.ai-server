@@ -23,7 +23,7 @@ module.exports = function (WatsonDiscovery) {
       discovery = new DiscoveryV1({
         version: '2018-12-03',
         iam_apikey: apiToken,
-        url: url
+        url: url,
       });
     } else {
       discovery = new DiscoveryV1({
