@@ -14,14 +14,25 @@ let myPubnub = new PubNub({
 
 module.exports = function (WatsonDiscovery) {
 
-  WatsonDiscovery.query = function (environmentId, collectionId, url, username, password, queryText, cb) {
+  WatsonDiscovery.query = function (environmentId, collectionId, url, username, password, apiToken, queryText, cb) {
 
-    var discovery = new DiscoveryV1({
-      version: '2018-12-03',
-      username: username,
-      password: password,
-      url: url
-    });
+
+    let discovery;
+
+    if (apiToken) {
+      discovery = new DiscoveryV1({
+        version: '2018-12-03',
+        iam_apikey: apiToken,
+        url: url,lk
+      });
+    } else {
+      discovery = new DiscoveryV1({
+        version: '2018-12-03',
+        username: username,
+        password: password,
+        url: url,
+      });
+    }
 
     return discovery.query({
       environment_id: environmentId,
@@ -38,6 +49,7 @@ module.exports = function (WatsonDiscovery) {
       {arg: 'url', type: 'string'},
       {arg: 'username', type: 'string'},
       {arg: 'password', type: 'string'},
+      {arg: 'apiToken', type: 'string'},
       {arg: 'queryText', type: 'string'},
     ],
     returns: {
