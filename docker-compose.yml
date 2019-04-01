@@ -1,0 +1,26 @@
+version: "2"
+
+services:
+
+  jacada.interact_ai:
+    build: .
+    networks:
+      - shared_default
+    external_links:
+      - shared_mongodb_1:mongodb
+      - graylog2_graylog_1:graylog
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      LOGGING_LEVEL: INFO
+      FACILITY: interact_ai
+      PORT: 3000
+      LOGGING_HOST: graylog
+    #    expose:
+    #      - "9500"
+    ports:
+      - "9501:3000"
+
+networks:
+  shared_default:
+    external: true
