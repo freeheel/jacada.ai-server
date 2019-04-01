@@ -11,7 +11,6 @@
     "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
-    "@types/bluebird": "^3.5.24",
     "apiai": "^4.0.3",
     "axios": "^0.16.2",
     "bluebird": "^3.5.2",
@@ -40,6 +39,7 @@
     "winston-tcp-graylog": "^1.0.13"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.24",
     "@mean-expert/loopback-sdk-builder": "^2.3.1",
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.6",
