@@ -1,13 +1,13 @@
 # You start off as the 'strongloop' user.
 # Check out https://hub.docker.com/_/node to select a new base image
-FROM node:10-slim
+FROM node:6-slim
 
 RUN apt-get update
 
 RUN apt-get -y install python make gcc
 
 # Set to a non-root built-in user `node`
-USER node
+#USER node
 
 # Create app directory (with user `node`)
 RUN mkdir -p /home/node/app
