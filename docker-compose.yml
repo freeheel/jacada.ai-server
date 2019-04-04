@@ -4,8 +4,6 @@ services:
 
   jacada.interact_ai:
     build: .
-    networks:
-      - shared_default
     external_links:
       - shared_mongodb_1:mongodb
       - graylog2_graylog_1:graylog
@@ -22,5 +20,6 @@ services:
       - "9501:3000"
 
 networks:
-  shared_default:
-    external: true
+  default:
+    external:
+      name: jacada
